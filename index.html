@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Депутатская школа</title>
+    <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:system-ui,'Segoe UI',sans-serif}
+        body{background:#eef2f5;padding:20px}
+        .app-container{max-width:1200px;margin:0 auto;background:white;border-radius:2rem;box-shadow:0 25px 45px -12px rgba(0,0,0,0.3);overflow:hidden}
+        .header{background:#0B2B40;color:white;padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+        .logo h1{font-size:1.3rem}
+        .user-info{background:#1e4a62;padding:5px 12px;border-radius:60px;display:flex;align-items:center;gap:12px;position:relative}
+        .notifications-icon{position:relative;cursor:pointer;font-size:1.2rem}
+        .notifications-count{position:absolute;top:-8px;right:-8px;background:#dc3545;color:white;border-radius:50%;width:16px;height:16px;font-size:0.6rem;display:flex;align-items:center;justify-content:center}
+        .notifications-dropdown{position:absolute;top:40px;right:0;width:280px;background:white;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);z-index:1000;max-height:300px;overflow-y:auto;display:none}
+        .notifications-dropdown.show{display:block}
+        .notification-item{padding:8px;border-bottom:1px solid #eee;font-size:0.75rem;color:#000}
+        .notification-item.task{background:#e8f4fd;border-left:3px solid #0B2B40}
+        .notification-time{font-size:0.65rem;color:#888;margin-top:3px}
+        button, .btn{border:none;padding:5px 12px;border-radius:30px;cursor:pointer;font-weight:bold;font-size:0.7rem}
+        .logout-btn{background:#c73f1e;color:white}
+        .profile-edit-btn{background:#2c7da0;color:white}
+        .nav-tabs{display:flex;background:#f4f7fa;border-bottom:1px solid #cfdfe9;padding:0 1rem;gap:0.3rem;flex-wrap:wrap}
+        .nav-btn{background:none;border:none;padding:0.7rem 1rem;font-size:0.9rem;font-weight:600;cursor:pointer;color:#2c5368;border-radius:12px 12px 0 0}
+        .nav-btn.active{background:white;color:#0B2B40;border-bottom:3px solid #0B2B40}
+        .content-pane{padding:1.2rem;background:white}
+        .card{background:white;border-radius:1rem;padding:1rem;margin-bottom:1.2rem;border:1px solid #e2edf2}
+        .card h3{font-size:1rem;margin-bottom:0.8rem;color:#0f3b4f;border-left:4px solid #0B2B40;padding-left:12px}
+        .warning-banner{background:#fff3cd;border-left:4px solid #ffc107;padding:10px;margin-bottom:15px;border-radius:10px;font-size:0.8rem}
+        .important-notif{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:white;padding:10px;margin-bottom:15px;border-radius:10px;position:relative;font-size:0.8rem}
+        .important-notif .close{position:absolute;top:5px;right:10px;background:none;border:none;color:white;font-size:1rem;cursor:pointer}
+        .badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:0.65rem;font-weight:bold}
+        .badge-active{background:#28a745;color:white}
+        .badge-pending{background:#ffc107;color:#000}
+        .badge-blocked{background:#dc3545;color:white}
+        table{width:100%;border-collapse:collapse;font-size:0.75rem}
+        th,td{padding:8px 4px;border-bottom:1px solid #dce5ea;text-align:left}
+        th{background:#eef3f8}
+        .form-group{margin-bottom:0.7rem}
+        label{font-size:0.8rem;font-weight:500}
+        input,select,textarea{width:100%;padding:6px 10px;border:1px solid #cbdde6;border-radius:8px;font-size:0.8rem}
+        .auth-box{max-width:380px;margin:2rem auto;padding:1.5rem;background:white;border-radius:1.5rem}
+        .transport-card{background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:10px;border-radius:10px;margin-top:8px;font-size:0.75rem}
+        .transport-card.blocked{background:linear-gradient(135deg,#dc3545,#a71d2a)}
+        .balance-info{display:flex;gap:10px;margin-top:6px;flex-wrap:wrap}
+        .balance-item{background:rgba(255,255,255,0.2);padding:3px 8px;border-radius:6px}
+        .calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:12px}
+        .calendar-day{text-align:center;padding:4px;border-radius:6px;cursor:pointer;background:#f4f7fa;font-size:0.65rem}
+        .calendar-day.selected{background:#0B2B40;color:white}
+        .calendar-day.today{border:2px solid #0B2B40}
+        .calendar-day.has-meal{background:#d4edda}
+        .meal-item{background:#f8f9fa;padding:6px;margin:6px 0;border-radius:8px;font-size:0.75rem}
+        .switch-auth a{color:#0B2B40;cursor:pointer;text-decoration:underline}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:2000;justify-content:center;align-items:center}
+        .modal.show{display:flex}
+        .modal-content{background:white;padding:1.2rem;border-radius:1rem;max-width:400px;width:90%}
+        @media(max-width:700px){.content-pane{padding:0.8rem}th,td{font-size:0.65rem}}
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="app-container" id="app">Загрузка...</div>
+<script>
+const SUPABASE_URL = 'https://ochvlfmwzixakqvcfkmf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_MR7dRmj_wTng2CIdIlmErA_fdrDlBW9';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let currentUser = null, activeTab = 'cabinet', showNotif = false, showModal = false, selectedDate = new Date().toISOString().slice(0,10);
+let users = [], cards = [], tasks = [], meals = [], events = [], important = [], requests = [], notifs = [];
+
+async function loadAll() {
+    const [u,c,t,m,e,i,r,n] = await Promise.all([
+        supabase.from('users').select('*'), supabase.from('transport_cards').select('*'), supabase.from('tasks').select('*'),
+        supabase.from('meals').select('*'), supabase.from('events').select('*'), supabase.from('important_notifications').select('*'),
+        supabase.from('topup_requests').select('*'), supabase.from('notifications').select('*')
+    ]);
+    if(u.data) users = u.data; if(c.data) cards = c.data; if(t.data) tasks = t.data; if(m.data) meals = m.data;
+    if(e.data) events = e.data; if(i.data) important = i.data; if(r.data) requests = r.data; if(n.data) notifs = n.data;
+}
+async function saveUser(u) { if(u.id) await supabase.from('users').update(u).eq('id',u.id); else await supabase.from('users').insert(u); await loadAll(); }
+async function saveCard(c) { if(c.id) await supabase.from('transport_cards').update(c).eq('id',c.id); else await supabase.from('transport_cards').insert(c); await loadAll(); }
+async function delCard(id) { await supabase.from('transport_cards').delete().eq('id',id); await loadAll(); }
+async function saveTask(t) { if(t.id) await supabase.from('tasks').update(t).eq('id',t.id); else await supabase.from('tasks').insert(t); await loadAll(); }
+async function delTask(id) { await supabase.from('tasks').delete().eq('id',id); await loadAll(); }
+async function saveMeal(m) { if(m.id) await supabase.from('meals').update(m).eq('id',m.id); else await supabase.from('meals').insert(m); await loadAll(); }
+async function delMeal(id) { await supabase.from('meals').delete().eq('id',id); await loadAll(); }
+async function saveEvent(e) { if(e.id) await supabase.from('events').update(e).eq('id',e.id); else await supabase.from('events').insert(e); await loadAll(); }
+async function delEvent(id) { await supabase.from('events').delete().eq('id',id); await loadAll(); }
+async function saveImportant(i) { if(i.id) await supabase.from('important_notifications').update(i).eq('id',i.id); else await supabase.from('important_notifications').insert(i); await loadAll(); }
+async function delImportant(id) { await supabase.from('important_notifications').delete().eq('id',id); await loadAll(); }
+async function saveRequest(r) { if(r.id) await supabase.from('topup_requests').update(r).eq('id',r.id); else await supabase.from('topup_requests').insert(r); await loadAll(); }
+async function addNotif(uid, msg, type='info') { await supabase.from('notifications').insert({ id: Date.now(), user_id: uid, message: msg, type, time: new Date().toLocaleString(), read: false }); await loadAll(); }
+function nextId(arr) { return arr.length ? Math.max(...arr.map(x=>x.id)) + 1 : 1; }
+
+// ПОЛЬЗОВАТЕЛИ
+async function register(login, pass, name, grp) {
+    if(users.find(u=>u.login===login)) return false;
+    await saveUser({ id: nextId(users), login, password: pass, fullname: name||'Новый', role:'user', status:'pending', userStatus:'active', group: grp||'', birthDate:'', city:'', school:'' });
+    await addNotif(users[users.length-1]?.id || 1, '✅ Регистрация успешна! Ожидайте подтверждения.', 'success');
+    return true;
+}
+async function login(login, pass) {
+    await loadAll();
+    const u = users.find(x=>x.login===login && x.password===pass);
+    if(!u) return { success: false, message: 'Неверный логин/пароль' };
+    if(u.status==='pending') { currentUser = u; return { success: true, warning: true }; }
+    if(u.userStatus==='fired' || u.userStatus==='restricted') return { success: false, message: 'Доступ заблокирован' };
+    currentUser = u;
+    activeTab = u.role==='admin' ? 'adminPanel' : 'cabinet';
+    await addNotif(u.id, `🔐 Вход: ${new Date().toLocaleString()}`, 'info');
+    return { success: true };
+}
+function logout() { currentUser = null; activeTab='cabinet'; render(); }
+async function confirmUser(id) { let u = users.find(x=>x.id===id); if(u && u.role!=='admin') { u.status='approved'; await saveUser(u); await addNotif(id,'✅ Учётная запись подтверждена!','success'); } render(); }
+async function deleteUser(id) { await supabase.from('users').delete().eq('id',id); await supabase.from('transport_cards').delete().eq('user_id',id); await supabase.from('tasks').delete().eq('assigned_to',id); await loadAll(); if(currentUser?.id===id) logout(); render(); }
+async function changePass(id, newPass) { let u = users.find(x=>x.id===id); if(u) { u.password=newPass; await saveUser(u); await addNotif(id,'🔑 Пароль изменён','warning'); } render(); }
+async function setUserStatus(id, st) { let u = users.find(x=>x.id===id); if(u && u.role!=='admin') { u.userStatus=st; await saveUser(u); await addNotif(id,`📌 Статус: ${st}`,'warning'); } render(); }
+
+// КАРТЫ
+function formatCardNum(inp) { let v = inp.value.replace(/\D/g,'').slice(0,9); let f=''; for(let i=0;i<v.length;i++) { if(i>0 && i%3===0) f+=' '; f+=v[i]; } inp.value=f; return v; }
+async function requestCard(uid, num) { let d = num.replace(/\s/g,''); if(!/^\d{9}$/.test(d)) return { success: false, message: '9 цифр (XXX XXX XXX)' }; if(cards.find(c=>c.user_id===uid && c.status!=='rejected')) return { success: false, message: 'Уже есть заявка' }; await saveCard({ id: nextId(cards), user_id: uid, card_number: d, card_number_formatted: num, status:'pending', type:null, balance:0, льготные_осталось:0, льготные_совершено:0, обычные_совершено:0, обычные_доступно:0, total_rides:0, blocked:false, stop_list:false, unlimited:false, requested_at: new Date().toISOString() }); await addNotif(uid,`🚌 Заявка на ТК ${num} отправлена`,'info'); return { success: true }; }
+async function approveCard(id, type) { let c = cards.find(x=>x.id===id); if(c) { c.status='approved'; c.type=type; c.unlimited=(type==='social'); if(type==='schoolboy') { c.льготные_осталось=45; c.льготные_совершено=0; c.обычные_совершено=0; c.обычные_доступно=0; c.balance=0; } else if(type==='student') { c.льготные_осталось=50; c.льготные_совершено=0; c.обычные_совершено=0; c.обычные_доступно=0; c.balance=0; } else if(type==='general') { c.льготные_осталось=0; c.обычные_совершено=0; c.balance=0; } else if(type==='social') { c.balance='Безлимит'; c.льготные_осталось='∞'; c.total_rides=0; } await saveCard(c); await addNotif(c.user_id,`🚌 ТК подтверждена (${getCardTypeText(type)})`,'success'); } render(); }
+async function rejectCard(id) { let c = cards.find(x=>x.id===id); if(c) { c.status='rejected'; await saveCard(c); await addNotif(c.user_id,'❌ Заявка на ТК отклонена','error'); } render(); }
+async function delCardById(cid, uid) { await delCard(cid); await addNotif(uid,'🗑 ТК удалена','warning'); render(); }
+async function updateBal(cid, bal) { let c = cards.find(x=>x.id===cid); if(c && !c.unlimited) { c.balance=bal; if(c.blocked && c.stop_list && bal>0) { c.blocked=false; c.stop_list=false; await addNotif(c.user_id,'✅ Карта разблокирована','success'); } await recalc(c); await addNotif(c.user_id,`💰 Баланс: ${bal} руб`,'info'); render(); } }
+async function recalc(c) { if(c.unlimited || c.type==='social') return; if(c.type==='general') { c.обычные_доступно = Math.floor(c.balance/37); c.total_rides = c.обычные_совершено||0; } else if(c.type==='schoolboy'||c.type==='student') { if(c.льготные_осталось===0) c.обычные_доступно = Math.floor(c.balance/37); else c.обычные_доступно=0; c.total_rides = (c.льготные_совершено||0)+(c.обычные_совершено||0); } await saveCard(c); }
+async function annulLgot(id) { let c = cards.find(x=>x.id===id); if(c && (c.type==='schoolboy'||c.type==='student')) { let max = c.type==='schoolboy'?45:50; c.льготные_осталось=0; c.льготные_совершено=max; await recalc(c); await addNotif(c.user_id,'❗ Льготные поездки аннулированы','warning'); render(); } }
+async function restoreLgot(id) { let c = cards.find(x=>x.id===id); if(c && (c.type==='schoolboy'||c.type==='student')) { let max = c.type==='schoolboy'?45:50; c.льготные_осталось=max; c.льготные_совершено=0; await recalc(c); await addNotif(c.user_id,'✅ Льготные поездки восстановлены','success'); render(); } }
+async function debitRide(cid) { let c = cards.find(x=>x.id===cid); if(!c) return alert('Карта не найдена'); if(c.unlimited) { c.total_rides = (c.total_rides||0)+1; await saveCard(c); await addNotif(c.user_id,'🎫 Поездка (безлимит)','info'); render(); return; } if(c.blocked && c.stop_list) { alert('Карта в стоп-листе'); return; } let ok=false, msg=''; if(c.type==='general') { if(c.balance>=37) { c.balance-=37; c.обычные_совершено=(c.обычные_совершено||0)+1; c.обычные_доступно=Math.floor(c.balance/37); ok=true; msg='Списана (37 руб)'; } else { c.balance-=37; c.обычные_совершено=(c.обычные_совершено||0)+1; c.обычные_доступно=Math.floor(c.balance/37); ok=true; msg='Списана (минус)'; c.blocked=true; c.stop_list=true; await addNotif(c.user_id,'🔴 Карта в стоп-листе','error'); } } else if(c.type==='schoolboy'||c.type==='student') { let price = c.type==='schoolboy'?8.4:21; if(c.льготные_осталось>0) { if(c.balance>=price) { c.льготные_осталось--; c.льготные_совершено++; c.balance-=price; ok=true; msg=`Льготная (${price} руб), осталось: ${c.льготные_осталось}`; } else { alert(`Недостаточно средств (нужно ${price} руб)`); c.blocked=true; c.stop_list=true; await addNotif(c.user_id,'🔴 Карта в стоп-листе','error'); } } else { if(c.balance>=37) { c.balance-=37; c.обычные_совершено=(c.обычные_совершено||0)+1; c.обычные_доступно=Math.floor(c.balance/37); ok=true; msg='Обычная (37 руб)'; } else { alert('Недостаточно средств (37 руб)'); c.blocked=true; c.stop_list=true; await addNotif(c.user_id,'🔴 Карта в стоп-листе','error'); } } } if(ok) { await recalc(c); await addNotif(c.user_id,`🎫 ${msg}`,'info'); } await saveCard(c); render(); }
+async function blockCard(id) { let c = cards.find(x=>x.id===id); if(c) { c.blocked=true; await saveCard(c); await addNotif(c.user_id,'🔒 ТК заблокирована','warning'); render(); } }
+async function unblockCard(id) { let c = cards.find(x=>x.id===id); if(c) { c.blocked=false; c.stop_list=false; await saveCard(c); await addNotif(c.user_id,'✅ ТК разблокирована','success'); render(); } }
+async function addTopUpReq(uid, amt) { await saveRequest({ id: Date.now(), user_id: uid, amount: amt, status:'pending', created_at: new Date().toISOString() }); await addNotif(uid,`📨 Заявка на пополнение ${amt} руб`,'info'); render(); }
+async function approveTopUp(reqId) { let r = requests.find(x=>x.id===reqId); if(r) { let c = cards.find(x=>x.user_id===r.user_id && x.status==='approved'); if(c) { c.balance = (c.balance||0) + r.amount; await recalc(c); await saveCard(c); } r.status='approved'; await saveRequest(r); await addNotif(r.user_id,`✅ Пополнение ${r.amount} руб подтверждено`,'success'); render(); } }
+async function rejectTopUp(reqId) { let r = requests.find(x=>x.id===reqId); if(r) { r.status='rejected'; await saveRequest(r); await addNotif(r.user_id,`❌ Пополнение ${r.amount} руб отклонено`,'error'); render(); } }
+function getCardTypeText(t) { const types={schoolboy:'Школьник',student:'Студент',general:'Общепользовательская',social:'Льготная'}; return types[t]||t; }
+function getUserCard(uid) { return cards.find(c=>c.user_id===uid && c.status==='approved'); }
+
+// ЗАДАЧИ, МЕРОПРИЯТИЯ, ПИТАНИЕ, УВЕДОМЛЕНИЯ
+async function addTask(title, desc, to, deadline) { await saveTask({ id: nextId(tasks), title, description: desc, assigned_to: parseInt(to), created_by: currentUser.id, status:'new', deadline, created_at: new Date().toISOString() }); await addNotif(to,`📋 Новая задача: ${title}`,'task'); render(); }
+async function updTaskStatus(id, st) { let t = tasks.find(x=>x.id===id); if(t) { t.status=st; await saveTask(t); await addNotif(t.assigned_to,`📌 Задача "${t.title}" → ${st}`,'task'); render(); } }
+async function delTaskById(id) { await delTask(id); render(); }
+async function addEvent(title, desc, date, time, loc) { await saveEvent({ id: nextId(events), title, description: desc, date, time, location: loc, created_at: new Date().toISOString() }); for(let u of users) if(u.role!=='admin') await addNotif(u.id,`📅 Новое: ${title} ${date} ${time}`,'info'); render(); }
+async function delEventById(id) { await delEvent(id); render(); }
+async function addMeal(date, type, dishes) { let exist = meals.find(m=>m.date===date && m.meal_type===type); if(exist) { exist.dishes=dishes; await saveMeal(exist); } else await saveMeal({ id: nextId(meals), date, meal_type:type, dishes }); for(let u of users) if(u.role!=='admin') await addNotif(u.id,`🍽 Меню на ${date}: ${type}`,'info'); render(); }
+async function delMealById(id) { await delMeal(id); render(); }
+async function addImportant(title, msg) { await saveImportant({ id: Date.now(), title, message: msg, created_at: new Date().toISOString() }); for(let u of users) if(u.role!=='admin') await addNotif(u.id,`🔔 ВАЖНО: ${title}`,'info'); render(); }
+async function delImportantById(id) { await delImportant(id); render(); }
+function getActiveImportant() { return important.filter(i => !localStorage.getItem(`dismiss_${i.id}`)); }
+function dismissImportant(id) { localStorage.setItem(`dismiss_${id}`,'true'); render(); }
+function getTasksForUser(uid, role) { return role==='admin' ? tasks : tasks.filter(t=>t.assigned_to===uid); }
+function getFutureEvents() { let today = new Date().toISOString().slice(0,10); return events.filter(e=>e.date>=today).sort((a,b)=>a.date.localeCompare(b.date)); }
+function getCalendarDays() { let days=[]; let d=new Date(); for(let i=0;i<14;i++) { let nd=new Date(d); nd.setDate(d.getDate()+i); days.push(nd.toISOString().slice(0,10)); } return days; }
+function formatDate(s) { let [y,m,d]=s.split('-'); return `${d}.${m}.${y}`; }
+
+// UI
+function renderCard(card) {
+    if(!card) return '<p>Нет карты</p>';
+    if(card.unlimited) return `<div class="transport-card unlimited"><strong>⭐ ЛЬГОТНАЯ</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${card.total_rides||0}<br>⭐ Безлимит</div>`;
+    if(card.type==='general') return `<div class="transport-card ${card.blocked?'blocked':''}"><strong>${card.blocked?'🔴 ЗАБЛОКИРОВАНА':'✅ АКТИВНА'}</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${card.обычные_совершено||0}<br>🚌 Доступно: ${Math.max(0,card.обычные_доступно||0)}<br>💰 Баланс: ${card.balance} руб</div>`;
+    if(card.type==='schoolboy'||card.type==='student') { let max=card.type==='schoolboy'?45:50; let price=card.type==='schoolboy'?'8.40 руб':'21 руб'; return `<div class="transport-card ${card.blocked?'blocked':''}"><strong>${card.blocked?'🔴 ЗАБЛОКИРОВАНА':'✅ АКТИВНА'}</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${(card.льготные_совершено||0)+(card.обычные_совершено||0)} (льготных: ${card.льготные_совершено||0})<br>🎟 Льготных осталось: ${card.льготные_осталось||0} из ${max} (${price})<br>🚌 Обычных доступно: ${card.обычные_доступно||0}<br>💰 Баланс: ${card.balance} руб</div>`; }
+    return '';
+}
+function renderCalendarHTML() {
+    let days=getCalendarDays(); let today=new Date().toISOString().slice(0,10);
+    let cal = `<div class="calendar">${days.map(d=>`<div class="calendar-day ${selectedDate===d?'selected':''} ${d===today?'today':''} ${meals.some(m=>m.date===d)?'has-meal':''}" onclick="window.selectDate('${d}')">${formatDate(d)}<div style="font-size:0.6rem;">${['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][new Date(d).getDay()]}</div></div>`).join('')}</div>`;
+    let mealsToday = meals.filter(m=>m.date===selectedDate);
+    let mealsHtml = mealsToday.length ? mealsToday.map(m=>`<div class="meal-item"><strong>${m.meal_type==='breakfast'?'🍳 Завтрак':m.meal_type==='lunch'?'🍲 Обед':'🍽 Ужин'}</strong><br>${m.dishes.replace(/\n/g,'<br>')}</div>`).join('') : '<p>🍽 Меню не назначено</p>';
+    return `<div class="card"><h3>📅 Питание (14 дней)</h3>${cal}<div style="margin-top:12px;"><h4>🍽 Меню на ${formatDate(selectedDate)}</h4>${mealsHtml}</div></div>`;
+}
+async function render() {
+    if(!currentUser) { renderAuth(); return; }
+    let isAdmin = currentUser.role==='admin';
+    let unread = notifs.filter(n=>n.user_id===currentUser.id && !n.read).length;
+    let activeImportant = getActiveImportant();
+    document.getElementById('app').innerHTML = `
+        <div class="header"><div class="logo"><h1>🏛 Депутатская школа</h1></div>
+        <div class="user-info"><div class="notifications-icon" id="notifIcon">🔔${unread?`<span class="notifications-count">${unread}</span>`:''}</div>
+        <span>👤 ${currentUser.fullname}</span><button class="profile-edit-btn" id="profileBtn">✏️</button><button class="logout-btn" id="logoutBtn">🚪 Выйти</button>
+        <div class="notifications-dropdown" id="notifDrop"><div id="notifList"></div></div></div></div>
+        <div class="nav-tabs"><button class="nav-btn ${activeTab==='cabinet'?'active':''}" data-tab="cabinet">📋 Личный кабинет</button>${isAdmin?'<button class="nav-btn ${activeTab===\'adminPanel\'?\'active\':\'\\" data-tab="adminPanel">⚙️ Админ-панель</button>':''}</div>
+        <div class="content-pane" id="content"></div>
+        <div class="modal ${showModal?'show':''}" id="profileModal"><div class="modal-content"><h3>✏️ Профиль</h3><form id="profForm"><input id="profName" value="${currentUser.fullname.replace(/</g,'&lt;')}"><input id="profBirth" value="${currentUser.birthDate||''}" placeholder="Дата рождения"><input id="profCity" value="${currentUser.city||''}" placeholder="Город"><input id="profSchool" value="${currentUser.school||''}" placeholder="Школа"><input id="profGroup" value="${currentUser.group||''}" placeholder="Группа"><button type="submit">💾 Сохранить</button><button type="button" id="closeModal">❌ Закрыть</button></form></div></div>
+    `;
+    if(activeTab==='cabinet') await renderCabinet();
+    else if(isAdmin) await renderAdmin();
+    document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>{ activeTab=btn.dataset.tab; render(); }));
+    document.getElementById('logoutBtn')?.addEventListener('click',()=>logout());
+    document.getElementById('profileBtn')?.addEventListener('click',()=>{ showModal=true; render(); });
+    document.getElementById('closeModal')?.addEventListener('click',()=>{ showModal=false; render(); });
+    document.getElementById('profForm')?.addEventListener('submit',async(e)=>{ e.preventDefault(); await updateUserProfile(currentUser.id, { fullname: document.getElementById('profName').value, birthDate: document.getElementById('profBirth').value, city: document.getElementById('profCity').value, school: document.getElementById('profSchool').value, group: document.getElementById('profGroup').value }); showModal=false; render(); });
+    let icon=document.getElementById('notifIcon'); let drop=document.getElementById('notifDrop');
+    if(icon) icon.onclick=(e)=>{ e.stopPropagation(); showNotif=!showNotif; if(showNotif) { let list=notifs.filter(n=>n.user_id===currentUser.id).slice(0,20); document.getElementById('notifList').innerHTML=list.map(n=>`<div class="notification-item ${n.type==='task'?'task':''}">${n.message}<div class="notification-time">${n.time}</div></div>`).join(''); drop.classList.toggle('show'); } else drop.classList.remove('show'); };
+    document.addEventListener('click',()=>{ showNotif=false; drop?.classList.remove('show'); });
+}
+async function renderCabinet() {
+    let card = getUserCard(currentUser.id);
+    let pending = currentUser.status==='pending';
+    let importantHtml = getActiveImportant().map(i=>`<div class="important-notif"><button class="close" onclick="dismissImportant(${i.id})">✕</button><strong>🔔 ${i.title}</strong><p>${i.message}</p></div>`).join('');
+    let eventsHtml = getFutureEvents().slice(0,5).map(e=>`<div class="meal-item"><strong>${e.title}</strong><br>📅 ${e.date} ${e.time}<br>📍 ${e.location}<br>${e.description}</div>`).join('')||'<p>Нет мероприятий</p>';
+    document.getElementById('content').innerHTML = `
+        ${importantHtml}
+        ${pending?'<div class="warning-banner">⚠️ Учётная запись ожидает подтверждения</div>':''}
+        <div class="card"><h3>🚌 Моя карта</h3>${ card ? renderCard(card) : (cards.find(c=>c.user_id===currentUser.id && c.status==='pending') ? '<div class="warning-banner">⏳ Заявка на ТК ожидает</div>' : `
+            <form id="cardForm"><div class="form-group"><input type="text" id="cardNum" placeholder="XXX XXX XXX" maxlength="11" required><small>9 цифр</small></div><button type="submit">📨 Подать заявку</button></form>
+            <form id="topupForm" style="margin-top:10px;"><div class="form-group"><input type="number" id="topupAmount" placeholder="Сумма" min="1"></div><button type="submit">📨 Заявка на пополнение</button></form>
+        `)}</div>
+        ${renderCalendarHTML()}
+        <div class="card"><h3>📅 Ближайшие мероприятия</h3>${eventsHtml}</div>
+        <div class="card"><h3>📋 Мои задачи</h3><div id="tasksList"></div></div>
+    `;
+    let tasksHtml = getTasksForUser(currentUser.id, currentUser.role).map(t=>`<div style="padding:8px;margin:6px 0;border-left:3px solid #0B2B40;background:#f8f9fa"><strong>${t.title}</strong><span class="badge" style="background:${t.status==='new'?'#dc3545':t.status==='progress'?'#ffc107':'#28a745'};color:white;margin-left:8px">${t.status==='new'?'Новая':t.status==='progress'?'В работе':'Выполнена'}</span><p>${t.description}</p><small>Срок: ${t.deadline||'—'}</small><div><select onchange="updTaskStatus(${t.id},this.value)"><option value="new" ${t.status==='new'?'selected':''}>🆕 Новая</option><option value="progress" ${t.status==='progress'?'selected':''}>⚙️ В работе</option><option value="done" ${t.status==='done'?'selected':''}>✅ Выполнена</option></select></div></div>`).join('');
+    document.getElementById('tasksList') && (document.getElementById('tasksList').innerHTML = tasksHtml || '<p>Нет задач</p>');
+    let cf=document.getElementById('cardForm'); if(cf) cf.onsubmit=async(e)=>{ e.preventDefault(); let res=await requestCard(currentUser.id, document.getElementById('cardNum').value); if(!res.success) alert(res.message); render(); };
+    let tf=document.getElementById('topupForm'); if(tf) tf.onsubmit=async(e)=>{ e.preventDefault(); let amt=parseInt(document.getElementById('topupAmount').value); if(amt>0) await addTopUpReq(currentUser.id, amt); render(); };
+}
+async function renderAdmin() {
+    let pendingCards = cards.filter(c=>c.status==='pending');
+    let pendingTopups = requests.filter(r=>r.status==='pending');
+    let usersTable = users.filter(u=>u.role!=='admin').map(u=>{ let c=getUserCard(u.id); return `<tr><td>${u.fullname}<br><small>${u.login}</small><br><button class="btn btn-edit" onclick="editProfile(${u.id})">✏️</button></td>
+    <td><select onchange="setUserStatus(${u.id},this.value)"><option ${u.userStatus==='active'?'selected':''}>Активен</option><option ${u.userStatus==='vacation'?'selected':''}>Отпуск</option><option ${u.userStatus==='fired'?'selected':''}>Уволен</option><option ${u.userStatus==='restricted'?'selected':''}>Ограничен</option></select><br><select onchange="if(this.value==='approved') confirmUser(${u.id})"><option ${u.status==='pending'?'selected':''}>⏳ Ожидает</option><option ${u.status==='approved'?'selected':''}>✅ Подтверждён</option></select></td>
+    <td>${c?c.card_number_formatted:'—'}</td><td>${c&&!c.unlimited?`<input id="bal_${u.id}" value="${c.balance}" style="width:70px"><button class="btn btn-edit" onclick="updateBal(${c.id},parseInt(document.getElementById('bal_${u.id}').value))">💰</button>`:c?.unlimited?'Безлимит':'—'}</td>
+    <td>${c&&(c.type==='schoolboy'||c.type==='student')?`${c.льготные_осталось} из ${c.type==='schoolboy'?45:50}<br><button class="btn btn-edit" onclick="annulLgot(${c.id})">❌ Аннул</button><button class="btn btn-confirm" onclick="restoreLgot(${c.id})">🔄 Восст</button>`:c?.type==='social'?'∞ Безлимит':'—'}</td>
+    <td>${c?`<button class="btn btn-debit" onclick="debitRide(${c.id})">🎫 Списать</button>${!c.blocked?`<button class="btn btn-block" onclick="blockCard(${c.id})">🔒 Блок</button>`:`<button class="btn btn-confirm" onclick="unblockCard(${c.id})">✅ Разбл</button>`}<button class="btn btn-delete" onclick="delCardById(${c.id},${u.id})">🗑 Уд</button>`:''}</td>
+    <td><button class="btn btn-change" onclick="let p=prompt('Новый пароль'); if(p) changePass(${u.id},p)">🔑 Пароль</button><button class="btn btn-delete" onclick="deleteUser(${u.id})">🗑 Уд ЛК</button></td></tr>`; }).join('');
+    document.getElementById('content').innerHTML = `
+        <div class="card"><h3>🔔 Важные уведомления</h3><form id="impForm"><input id="impTitle" placeholder="Заголовок"><textarea id="impMsg" rows="2" placeholder="Текст"></textarea><button type="submit">➕ Добавить</button></form><div id="impList"></div></div>
+        <div class="card"><h3>💰 Заявки на пополнение (${pendingTopups.length})</h3>${pendingTopups.map(r=>{ let u=users.find(x=>x.id===r.user_id); return `<div>${u?.fullname} — ${r.amount} руб <button class="btn btn-confirm" onclick="approveTopUp(${r.id})">✅</button><button class="btn btn-delete" onclick="rejectTopUp(${r.id})">❌</button></div>`; }).join('')||'Нет заявок'}</div>
+        <div class="card"><h3>🚌 Заявки на ТК (${pendingCards.length})</h3><table><thead><tr><th>Пользователь</th><th>Номер</th><th>Тип</th><th></th></tr></thead><tbody>${pendingCards.map(c=>{ let u=users.find(x=>x.id===c.user_id); return `<tr><td>${u?.fullname}</td><td>${c.card_number_formatted}</td><td><select id="type_${c.id}"><option value="schoolboy">Школьник</option><option value="student">Студент</option><option value="general">Общепользовательская</option><option value="social">Льготная</option></select></td><td><button class="btn btn-confirm" onclick="approveCard(${c.id},document.getElementById('type_${c.id}').value)">✅</button><button class="btn btn-delete" onclick="rejectCard(${c.id})">❌</button></td></tr>`; }).join('')}</tbody></table></div>
+        <div class="card"><h3>👥 Пользователи и ТК</h3><div style="overflow-x:auto"><table><thead><tr><th>Пользователь</th><th>Статусы</th><th>ТК</th><th>Баланс</th><th>Льготные</th><th>Действия ТК</th><th>Действия</th></tr></thead><tbody>${usersTable}</tbody></table></div></div>
+        <div class="card"><h3>🍽 Питание</h3><form id="addMealForm"><input type="date" id="mealDate" required><select id="mealType"><option value="breakfast">Завтрак</option><option value="lunch">Обед</option><option value="dinner">Ужин</option></select><textarea id="mealDishes" rows="2" placeholder="Блюдо - цена"></textarea><button type="submit">➕ Добавить</button></form><div id="mealsList"></div></div>
+        <div class="card"><h3>📅 Мероприятия</h3><form id="addEventForm"><input id="evTitle" placeholder="Название"><textarea id="evDesc" rows="2" placeholder="Описание"></textarea><input id="evDate" type="date"><input id="evTime" type="time"><input id="evLoc" placeholder="Место"><button type="submit">➕ Добавить</button></form><div id="eventsList"></div></div>
+        <div class="card"><h3>📋 Задачи</h3><button id="showTaskBtn">+ Добавить задачу</button><div id="taskFormDiv" style="display:none"><input id="taskTitle" placeholder="Название"><textarea id="taskDesc" rows="2"></textarea><select id="taskAssigned">${users.filter(u=>u.status==='approved').map(u=>`<option value="${u.id}">${u.fullname}</option>`).join('')}</select><input id="taskDeadline" type="date"><button id="createTaskBtn">✅ Создать</button><button id="cancelTaskBtn">Отмена</button></div><div id="allTasksList"></div></div>
+    `;
+    document.getElementById('impForm')?.addEventListener('submit',async(e)=>{ e.preventDefault(); await addImportant(document.getElementById('impTitle').value, document.getElementById('impMsg').value); render(); });
+    document.getElementById('addMealForm')?.addEventListener('submit',async(e)=>{ e.preventDefault(); await addMeal(document.getElementById('mealDate').value, document.getElementById('mealType').value, document.getElementById('mealDishes').value); render(); });
+    document.getElementById('addEventForm')?.addEventListener('submit',async(e)=>{ e.preventDefault(); await addEvent(document.getElementById('evTitle').value, document.getElementById('evDesc').value, document.getElementById('evDate').value, document.getElementById('evTime').value, document.getElementById('evLoc').value); render(); });
+    let showTask = false;
+    document.getElementById('showTaskBtn')?.addEventListener('click',()=>{ let div=document.getElementById('taskFormDiv'); showTask=!showTask; div.style.display=showTask?'block':'none'; });
+    document.getElementById('cancelTaskBtn')?.addEventListener('click',()=>{ document.getElementById('taskFormDiv').style.display='none'; showTask=false; });
+    document.getElementById('createTaskBtn')?.addEventListener('click',async()=>{ await addTask(document.getElementById('taskTitle').value, document.getElementById('taskDesc').value, document.getElementById('taskAssigned').value, document.getElementById('taskDeadline').value); render(); });
+    let impList = important.map(i=>`<div class="meal-item"><strong>🔔 ${i.title}</strong><br>${i.message}<br><button class="btn btn-delete" onclick="delImportantById(${i.id})">🗑 Удалить</button></div>`).join('');
+    document.getElementById('impList') && (document.getElementById('impList').innerHTML = impList || '<p>Нет уведомлений</p>');
+    let mealsList = meals.map(m=>`<div class="meal-item"><strong>📅 ${m.date} — ${m.meal_type==='breakfast'?'Завтрак':m.meal_type==='lunch'?'Обед':'Ужин'}</strong><br>${m.dishes.replace(/\n/g,'<br>')}<br><button class="btn btn-delete" onclick="delMealById(${m.id})">🗑 Удалить</button></div>`).join('');
+    document.getElementById('mealsList') && (document.getElementById('mealsList').innerHTML = mealsList || '<p>Нет меню</p>');
+    let eventsList = events.map(e=>`<div class="meal-item"><strong>📅 ${e.date} ${e.time} — ${e.title}</strong><br>📍 ${e.location}<br>${e.description}<br><button class="btn btn-delete" onclick="delEventById(${e.id})">🗑 Удалить</button></div>`).join('');
+    document.getElementById('eventsList') && (document.getElementById('eventsList').innerHTML = eventsList || '<p>Нет мероприятий</p>');
+    let allTasksHtml = tasks.map(t=>{ let u=users.find(x=>x.id===t.assigned_to); return `<div class="meal-item"><strong>${t.title}</strong><br>👤 ${u?.fullname}<br>📅 ${t.deadline||'—'}<br><button class="btn btn-delete" onclick="delTaskById(${t.id})">🗑 Удалить</button></div>`; }).join('');
+    document.getElementById('allTasksList') && (document.getElementById('allTasksList').innerHTML = allTasksHtml || '<p>Нет задач</p>');
+}
+function renderAuth() {
+    let mode='login', err='';
+    const container = document.getElementById('app');
+    function show() {
+        if(mode==='login') container.innerHTML = `<div class="auth-box"><h2>🏛 Депутатская школа</h2><h3>Вход</h3><form id="loginForm"><div class="form-group"><input type="text" id="logLogin" placeholder="Логин" required></div><div class="form-group"><input type="password" id="logPass" placeholder="Пароль" required></div>${err?`<div class="error-msg">${err}</div>`:''}<button type="submit">🔐 Войти</button></form><div class="switch-auth">Нет аккаунта? <a id="goReg">Зарегистрироваться</a></div><div style="font-size:0.7rem;margin-top:10px">admin / admin123</div></div>`;
+        else container.innerHTML = `<div class="auth-box"><h2>📝 Регистрация</h2><form id="regForm"><div class="form-group"><input type="text" id="regLogin" placeholder="Логин *" required></div><div class="form-group"><input type="password" id="regPass" placeholder="Пароль *" required></div><div class="form-group"><input type="text" id="regName" placeholder="ФИО"></div><div class="form-group"><input type="text" id="regGroup" placeholder="Группа"></div>${err?`<div class="error-msg">${err}</div>`:''}<button type="submit">✨ Зарегистрироваться</button></form><div class="switch-auth">Уже есть аккаунт? <a id="goLog">Войти</a></div></div>`;
+        document.getElementById('loginForm')?.addEventListener('submit', async(e)=>{ e.preventDefault(); let res=await login(document.getElementById('logLogin').value, document.getElementById('logPass').value); if(res.success) render(); else { err=res.message; show(); } });
+        document.getElementById('regForm')?.addEventListener('submit', async(e)=>{ e.preventDefault(); let ok=await register(document.getElementById('regLogin').value, document.getElementById('regPass').value, document.getElementById('regName').value, document.getElementById('regGroup').value); if(ok) { mode='login'; show(); alert('Регистрация успешна!'); } else { err='Логин уже существует'; show(); } });
+        document.getElementById('goReg')?.addEventListener('click',()=>{ mode='register'; show(); });
+        document.getElementById('goLog')?.addEventListener('click',()=>{ mode='login'; show(); });
+    }
+    show();
+}
+window.selectDate = (d)=>{ selectedDate=d; render(); };
+window.updTaskStatus = updTaskStatus;
+window.editProfile = (id)=>{ let u=users.find(x=>x.id===id); if(u){ let newName=prompt('ФИО:',u.fullname); let newBirth=prompt('Дата рождения:',u.birthDate||''); let newCity=prompt('Город:',u.city||''); let newSchool=prompt('Школа:',u.school||''); let newGroup=prompt('Группа:',u.group||''); updateUserProfile(id,{fullname:newName||u.fullname, birthDate:newBirth||'', city:newCity||'', school:newSchool||'', group:newGroup||''}); render(); } };
+async function updateUserProfile(id,data){ let u=users.find(x=>x.id===id); if(u){ Object.assign(u,data); await saveUser(u); if(currentUser?.id===id) currentUser=u; render(); } }
+loadAll().then(()=>render());
+</script>
+</body>
+</html>
