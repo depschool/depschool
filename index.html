@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Депутатская школа</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Roboto', sans-serif;
+        }
+        body {
+            background: linear-gradient(145deg, #eef2f5 0%, #d9e2e8 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .header {
+            background: #0B2B40;
+            color: white;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            position: relative;
+        }
+        .logo h1 { font-size: 1.6rem; }
+        .user-info {
+            background: #1e4a62;
+            padding: 8px 18px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            flex-wrap: wrap;
+        }
+        .notifications-icon {
+            position: relative;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+        .notifications-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .notifications-dropdown {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            width: 340px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-height: 400px;
+            overflow-y: auto;
+            display: none;
+        }
+        .notifications-dropdown.show { display: block; }
+        .notification-item {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 0.85rem;
+            color: #000000;
+            background: white;
+        }
+        .notification-item.task { background: #e8f4fd; border-left: 3px solid #0B2B40; }
+        .notification-item.low-balance { background: #fff3cd; border-left: 3px solid #ffc107; }
+        .notification-time {
+            font-size: 0.7rem;
+            color: #888;
+            margin-top: 5px;
+        }
+        .logout-btn, .profile-edit-btn, .save-exit-btn {
+            border: none;
+            color: white;
+            padding: 5px 14px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .logout-btn { background: #c73f1e; }
+        .profile-edit-btn { background: #2c7da0; }
+        .save-exit-btn { background: #28a745; }
+        .nav-tabs {
+            display: flex;
+            background: #f4f7fa;
+            border-bottom: 1px solid #cfdfe9;
+            padding: 0 2rem;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            color: #2c5368;
+            border-radius: 12px 12px 0 0;
+            transition: all 0.3s ease;
+        }
+        .nav-btn.active {
+            background: white;
+            color: #0B2B40;
+            border-bottom: 3px solid #0B2B40;
+        }
+        .nav-btn:hover:not(.active) {
+            background: #e6edf2;
+            transform: translateY(-2px);
+        }
+        .content-pane {
+            padding: 2rem;
+            background: white;
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            background: #fefefe;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.8rem;
+            border: 1px solid #e2edf2;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+        .card h3 {
+            margin-bottom: 1rem;
+            color: #0f3b4f;
+            border-left: 5px solid #0B2B40;
+            padding-left: 15px;
+        }
+        .warning-banner {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+        }
+        .important-notification {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            padding: 15px 20px;
+            margin-bottom: 20px;
+            border-radius: 12px;
+            position: relative;
+            animation: slideDown 0.5s ease;
+        }
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .important-notification .close-notif {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.8;
+        }
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        .badge-active { background: #28a745; color: white; }
+        .badge-pending { background: #ffc107; color: #000; }
+        .badge-approved { background: #28a745; color: white; }
+        .badge-blocked { background: #dc3545; color: white; }
+        .badge-stoplist { background: #dc3545; color: white; }
+        .badge-unlimited { background: #9b59b6; color: white; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px 8px;
+            border-bottom: 1px solid #dce5ea;
+        }
+        th { background: #eef3f8; font-weight: 600; }
+        .btn-edit, .btn-delete, .btn-confirm, .btn-change-password, .btn-block, .btn-delete-card, .btn-add, .btn-debit, .btn-unblock, .btn-outline {
+            border: none;
+            margin: 0 4px;
+            padding: 5px 12px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+        .btn-edit { background: #2c7da0; color: white; }
+        .btn-delete { background: #dc3545; color: white; }
+        .btn-delete-card { background: #dc3545; color: white; }
+        .btn-confirm { background: #28a745; color: white; }
+        .btn-change-password { background: #ffc107; color: #000; }
+        .btn-block { background: #fd7e14; color: white; }
+        .btn-debit { background: #6f42c1; color: white; }
+        .btn-unblock { background: #28a745; color: white; }
+        .btn-outline { background: #e9ecef; color: #0B2B40; border: 1px solid #cbdde6; }
+        .form-group { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 6px; font-weight: 500; }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #cbdde6;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.2s ease;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #0B2B40;
+        }
+        button {
+            background: #0B2B40;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        button:hover { background: #1e5a6e; transform: scale(1.02); }
+        .auth-box {
+            max-width: 450px;
+            margin: 2rem auto;
+            padding: 2rem;
+            animation: fadeIn 0.5s ease;
+        }
+        .auth-box button {
+            background: #0B2B40;
+            font-size: 1.1rem;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .error-msg { color: #dc3545; margin-top: 10px; }
+        .transport-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 10px;
+        }
+        .transport-card.blocked { background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%); }
+        .transport-card.unlimited { background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); }
+        .transport-card.stoplist { background: linear-gradient(135deg, #dc3545 0%, #a71d2a 100%); }
+        .balance-info {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .balance-item {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 12px;
+            border-radius: 8px;
+        }
+        .meal-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+        .calendar {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .calendar-day {
+            text-align: center;
+            padding: 8px;
+            border-radius: 8px;
+            cursor: pointer;
+            background: #f4f7fa;
+            transition: all 0.2s ease;
+        }
+        .calendar-day:hover { background: #e2edf2; transform: scale(1.02); }
+        .calendar-day.selected { background: #0B2B40; color: white; }
+        .calendar-day.today { border: 2px solid #0B2B40; }
+        .calendar-day.has-meal { background: #d4edda; }
+        .calendar-day.has-meal.selected { background: #0B2B40; color: white; }
+        .weekday {
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 8px;
+            color: #6c757d;
+        }
+        .switch-auth a {
+            color: #0B2B40;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 1.5rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        @media (max-width: 768px) {
+            .content-pane { padding: 1rem; }
+            th, td { font-size: 0.8rem; }
+            .card { padding: 1rem; }
+            .user-info { gap: 8px; }
+            .calendar { gap: 4px; }
+            .calendar-day { font-size: 0.7rem; padding: 4px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app-container" id="app"></div>
+
+<script>
+    // ========== ХРАНИЛИЩЕ ==========
+    let users = [];
+    let tasks = [];
+    let transportCards = [];
+    let notifications = [];
+    let meals = [];
+    let events = [];
+    let importantNotifications = [];
+    let topUpRequests = [];
+
+    function loadData() {
+        const storedUsers = localStorage.getItem('deputat_users_final');
+        const storedTasks = localStorage.getItem('deputat_tasks_final');
+        const storedCards = localStorage.getItem('deputat_cards_final');
+        const storedNotif = localStorage.getItem('deputat_notif_final');
+        const storedMeals = localStorage.getItem('deputat_meals_final');
+        const storedEvents = localStorage.getItem('deputat_events_final');
+        const storedImportant = localStorage.getItem('deputat_important_final');
+        const storedRequests = localStorage.getItem('deputat_requests_final');
+        
+        if(storedUsers) users = JSON.parse(storedUsers);
+        else users = [{ id: 1, login: 'admin', password: 'admin123', fullname: 'Анна Владимировна', role: 'admin', status: 'approved', userStatus: 'active', group: 'Руководство', birthDate: '', city: '', school: '' }];
+        
+        if(storedTasks) tasks = JSON.parse(storedTasks);
+        else tasks = [];
+        
+        if(storedCards) transportCards = JSON.parse(storedCards);
+        else transportCards = [];
+        
+        if(storedNotif) notifications = JSON.parse(storedNotif);
+        else notifications = [];
+        
+        if(storedMeals) meals = JSON.parse(storedMeals);
+        else meals = [];
+        
+        if(storedEvents) events = JSON.parse(storedEvents);
+        else events = [];
+        
+        if(storedImportant) importantNotifications = JSON.parse(storedImportant);
+        else importantNotifications = [];
+        
+        if(storedRequests) topUpRequests = JSON.parse(storedRequests);
+        else topUpRequests = [];
+        
+        saveAll();
+    }
+
+    function saveAll() {
+        localStorage.setItem('deputat_users_final', JSON.stringify(users));
+        localStorage.setItem('deputat_tasks_final', JSON.stringify(tasks));
+        localStorage.setItem('deputat_cards_final', JSON.stringify(transportCards));
+        localStorage.setItem('deputat_notif_final', JSON.stringify(notifications));
+        localStorage.setItem('deputat_meals_final', JSON.stringify(meals));
+        localStorage.setItem('deputat_events_final', JSON.stringify(events));
+        localStorage.setItem('deputat_important_final', JSON.stringify(importantNotifications));
+        localStorage.setItem('deputat_requests_final', JSON.stringify(topUpRequests));
+    }
+
+    let currentUser = null;
+    let activeTab = 'cabinet';
+    let showNotifications = false;
+    let showProfileModal = false;
+    let dismissedImportant = JSON.parse(localStorage.getItem('dismissed_important') || '[]');
+    let selectedMealDate = new Date().toISOString().split('T')[0];
+
+    function addNotification(userId, message, type = 'info') {
+        notifications.unshift({ id: Date.now(), userId, message, type, time: new Date().toLocaleString(), read: false });
+        saveAll();
+    }
+
+    function getUnreadNotificationsCount(userId) { return notifications.filter(n => n.userId === userId && !n.read).length; }
+    function markNotificationsAsRead(userId) { notifications.forEach(n => { if(n.userId === userId) n.read = true; }); saveAll(); }
+    function getUserNotifications(userId) { return notifications.filter(n => n.userId === userId); }
+
+    function saveSession() {
+        if(currentUser) localStorage.setItem('deputat_session_final', JSON.stringify({ id: currentUser.id }));
+        else localStorage.removeItem('deputat_session_final');
+    }
+
+    function loadSession() {
+        const sess = localStorage.getItem('deputat_session_final');
+        if(sess) { const { id } = JSON.parse(sess); currentUser = users.find(u => u.id === id) || null; }
+    }
+
+    function getNextId(arr) { return arr.length > 0 ? Math.max(...arr.map(i => i.id)) + 1 : 1; }
+
+    // ========== ПОЛЬЗОВАТЕЛИ ==========
+    function registerUser(login, password, fullname, group) {
+        if(users.find(u => u.login === login)) return false;
+        users.push({ id: getNextId(users), login: login.trim(), password: password.trim(), fullname: fullname.trim() || 'Новый пользователь', role: 'user', status: 'pending', userStatus: 'active', group: group.trim() || 'Не назначена', birthDate: '', city: '', school: '' });
+        saveAll();
+        addNotification(users[users.length-1].id, '✅ Вы зарегистрировались. Ожидайте подтверждения.', 'success');
+        return true;
+    }
+
+    function updateUserProfile(userId, data) {
+        const user = users.find(u => u.id === userId);
+        if(user) { Object.assign(user, data); saveAll(); if(currentUser?.id === userId) { currentUser = user; saveSession(); } return true; }
+        return false;
+    }
+
+    function updateUserAccountStatus(userId, newStatus) {
+        const user = users.find(u => u.id === userId);
+        if(user && user.role !== 'admin') { user.userStatus = newStatus; saveAll(); addNotification(userId, `📌 Ваш статус изменён на: ${getUserStatusText(newStatus)}`, 'warning'); return true; }
+        return false;
+    }
+
+    function getUserStatusText(status) {
+        const texts = { active: 'Активен', vacation: 'Отпуск', fired: 'Уволен', restricted: 'Временно ограничен' };
+        return texts[status] || status;
+    }
+
+    function confirmUser(userId) {
+        const user = users.find(u => u.id === userId);
+        if(user && user.role !== 'admin') { user.status = 'approved'; saveAll(); addNotification(userId, '✅ Учётная запись подтверждена!', 'success'); return true; }
+        return false;
+    }
+
+    function deleteUserAccount(userId) {
+        users = users.filter(u => u.id !== userId);
+        tasks = tasks.filter(t => t.assignedTo !== userId);
+        transportCards = transportCards.filter(c => c.userId !== userId);
+        saveAll();
+        if(currentUser?.id === userId) logout(true);
+        return true;
+    }
+
+    function changeUserPassword(userId, newPassword) {
+        const user = users.find(u => u.id === userId);
+        if(user && newPassword?.trim()) { user.password = newPassword.trim(); saveAll(); addNotification(userId, '🔑 Пароль изменён администратором', 'warning'); return true; }
+        return false;
+    }
+
+    function loginUser(login, password) {
+        const user = users.find(u => u.login === login && u.password === password);
+        if(!user) return { success: false, message: 'Неверный логин или пароль' };
+        if(user.status === 'pending') {
+            currentUser = user; saveSession(); activeTab = 'cabinet';
+            return { success: true, warning: 'Учётная запись ожидает подтверждения' };
+        }
+        if(user.userStatus === 'fired') return { success: false, message: 'Учётная запись уволена. Доступ запрещён' };
+        if(user.userStatus === 'restricted') return { success: false, message: 'Доступ временно ограничен' };
+        currentUser = user; saveSession(); activeTab = (user.role === 'admin') ? 'adminPanel' : 'cabinet';
+        addNotification(user.id, `🔐 Вход: ${new Date().toLocaleString()}`, 'info');
+        return { success: true };
+    }
+
+    function logout(save = true) {
+        if(save) saveAll();
+        if(currentUser) addNotification(currentUser.id, '👋 Вы вышли', 'info');
+        currentUser = null; localStorage.removeItem('deputat_session_final'); activeTab = 'cabinet'; renderApp();
+    }
+
+    // ========== ВАЖНЫЕ УВЕДОМЛЕНИЯ ==========
+    function addImportantNotification(title, message) {
+        importantNotifications.push({ id: Date.now(), title, message, createdAt: new Date().toISOString() });
+        saveAll();
+        users.forEach(u => { if(u.role !== 'admin') addNotification(u.id, `🔔 ВАЖНО: ${title}`, 'info'); });
+        return true;
+    }
+
+    function deleteImportantNotification(notifId) {
+        importantNotifications = importantNotifications.filter(n => n.id !== notifId);
+        saveAll();
+        return true;
+    }
+
+    function getActiveImportantNotifications() {
+        return importantNotifications.filter(n => !dismissedImportant.includes(n.id));
+    }
+
+    function dismissImportantNotification(notifId) {
+        if(!dismissedImportant.includes(notifId)) dismissedImportant.push(notifId);
+        localStorage.setItem('dismissed_important', JSON.stringify(dismissedImportant));
+        renderApp();
+    }
+
+    // ========== ПИТАНИЕ ==========
+    function addMeal(date, mealType, dishes) {
+        const existing = meals.find(m => m.date === date && m.mealType === mealType);
+        if(existing) existing.dishes = dishes;
+        else meals.push({ id: getNextId(meals), date, mealType, dishes });
+        saveAll();
+        users.forEach(u => { if(u.role !== 'admin') addNotification(u.id, `🍽 Новое меню на ${date}: ${mealType === 'breakfast' ? 'Завтрак' : mealType === 'lunch' ? 'Обед' : 'Ужин'}`, 'info'); });
+        return true;
+    }
+
+    function deleteMeal(mealId) {
+        meals = meals.filter(m => m.id !== mealId);
+        saveAll();
+        return true;
+    }
+
+    function getMealsByDate(date) { return meals.filter(m => m.date === date); }
+    function hasMealOnDate(date) { return meals.some(m => m.date === date); }
+
+    // ========== ТРАНСПОРТНЫЕ КАРТЫ - ИСПРАВЛЕННАЯ ЛОГИКА ==========
+    function formatCardNumber(input) {
+        let value = input.value.replace(/\D/g, '').slice(0, 9);
+        let formatted = '';
+        for (let i = 0; i < value.length; i++) {
+            if (i > 0 && i % 3 === 0) formatted += ' ';
+            formatted += value[i];
+        }
+        input.value = formatted;
+        return value;
+    }
+
+    function validateCardNumber(cardNumber) { return /^\d{9}$/.test(cardNumber.replace(/\s/g, '')); }
+
+    function requestTransportCard(userId, cardNumberWithSpaces) {
+        if(!validateCardNumber(cardNumberWithSpaces)) return { success: false, message: 'Номер карты: 9 цифр (XXX XXX XXX)' };
+        if(transportCards.find(c => c.userId === userId && c.status !== 'rejected')) return { success: false, message: 'У вас уже есть заявка или карта' };
+        
+        transportCards.push({ 
+            id: getNextId(transportCards), 
+            userId, 
+            cardNumber: cardNumberWithSpaces.replace(/\s/g, ''), 
+            cardNumberFormatted: cardNumberWithSpaces, 
+            status: 'pending', 
+            type: null, 
+            balance: 0, 
+            льготныеОсталось: 0,
+            льготныеСовершено: 0,
+            обычныеСовершено: 0,
+            обычныеДоступно: 0,
+            totalRides: 0,
+            blocked: false, 
+            stopList: false,
+            unlimited: false, 
+            requestedAt: new Date().toISOString() 
+        });
+        saveAll();
+        addNotification(userId, `🚌 Заявка на ТК №${cardNumberWithSpaces} отправлена`, 'info');
+        users.filter(u => u.role === 'admin').forEach(admin => addNotification(admin.id, `📨 Новая заявка на ТК от ${users.find(u => u.id === userId)?.fullname}`, 'info'));
+        return { success: true };
+    }
+
+    function approveTransportCard(cardId, cardType) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card) {
+            card.status = 'approved';
+            card.type = cardType;
+            card.unlimited = (cardType === 'social');
+            
+            if(cardType === 'schoolboy') {
+                card.льготныеОсталось = 45;
+                card.льготныеСовершено = 0;
+                card.обычныеСовершено = 0;
+                card.обычныеДоступно = 0;
+                card.balance = 0;
+            } else if(cardType === 'student') {
+                card.льготныеОсталось = 50;
+                card.льготныеСовершено = 0;
+                card.обычныеСовершено = 0;
+                card.обычныеДоступно = 0;
+                card.balance = 0;
+            } else if(cardType === 'general') {
+                card.льготныеОсталось = 0;
+                card.льготныеСовершено = 0;
+                card.обычныеСовершено = 0;
+                card.обычныеДоступно = 0;
+                card.balance = 0;
+            } else if(cardType === 'social') {
+                card.balance = 'Безлимит';
+                card.льготныеОсталось = '∞';
+                card.totalRides = 0;
+            }
+            
+            card.approvedAt = new Date().toISOString();
+            saveAll();
+            addNotification(card.userId, `🚌 ТК подтверждена! Тип: ${getCardTypeText(cardType)}`, 'success');
+            return true;
+        }
+        return false;
+    }
+
+    function rejectTransportCard(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card) { card.status = 'rejected'; saveAll(); addNotification(card.userId, '❌ Заявка на ТК отклонена', 'error'); return true; }
+        return false;
+    }
+
+    function deleteTransportCard(cardId, userId) {
+        transportCards = transportCards.filter(c => c.id !== cardId);
+        saveAll();
+        addNotification(userId, '🗑 Транспортная карта удалена', 'warning');
+        return true;
+    }
+
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ: пересчёт поездок НЕ трогает льготные при пополнении
+    function recalcRides(card) {
+        if(card.unlimited || card.type === 'social') return;
+        
+        if(card.type === 'general') {
+            card.обычныеДоступно = Math.floor(card.balance / 37);
+            card.обычныеСовершено = card.обычныеСовершено || 0;
+            card.totalRides = card.обычныеСовершено;
+        } else if(card.type === 'schoolboy' || card.type === 'student') {
+            // ЛЬГОТНЫЕ ПОЕЗДКИ НЕ ЗАВИСЯТ ОТ БАЛАНСА!
+            // Они меняются ТОЛЬКО при списании поездки (debitRide)
+            // или при ручном изменении админом
+            
+            // Пересчитываем только обычные поездки (когда льготные закончились)
+            if(card.льготныеОсталось === 0 || card.льготныеОсталось === '∞') {
+                card.обычныеДоступно = Math.floor(card.balance / 37);
+            } else {
+                card.обычныеДоступно = 0;
+            }
+            
+            card.totalRides = (card.льготныеСовершено || 0) + (card.обычныеСовершено || 0);
+        }
+        saveAll();
+    }
+
+    function updateCardBalance(cardId, newBalance) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card && !card.unlimited) {
+            card.balance = newBalance;
+            
+            // Разблокировка если была в стоп-листе
+            if(card.blocked && card.stopList && newBalance > 0) {
+                card.blocked = false;
+                card.stopList = false;
+                addNotification(card.userId, '✅ Карта разблокирована! Можете пользоваться.', 'success');
+            }
+            
+            recalcRides(card);
+            saveAll();
+            addNotification(card.userId, `💰 Баланс ТК: ${newBalance} руб.`, 'info');
+            if(newBalance < 100 && !card.unlimited) addNotification(card.userId, `⚠️ Низкий баланс на ТК: ${newBalance} руб.`, 'low-balance');
+            return true;
+        }
+        return false;
+    }
+
+    function аннулироватьВсеЛьготныеПоездки(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card && (card.type === 'schoolboy' || card.type === 'student')) {
+            const макс = card.type === 'schoolboy' ? 45 : 50;
+            card.льготныеОсталось = 0;
+            card.льготныеСовершено = макс;
+            recalcRides(card);
+            saveAll();
+            addNotification(card.userId, '❗ Ваши льготные поездки аннулированы администратором', 'warning');
+            return true;
+        }
+        return false;
+    }
+
+    function восстановитьВсеЛьготныеПоездки(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card && (card.type === 'schoolboy' || card.type === 'student')) {
+            const макс = card.type === 'schoolboy' ? 45 : 50;
+            card.льготныеОсталось = макс;
+            card.льготныеСовершено = 0;
+            recalcRides(card);
+            saveAll();
+            addNotification(card.userId, '✅ Ваши льготные поездки восстановлены администратором', 'success');
+            return true;
+        }
+        return false;
+    }
+
+    // ИСПРАВЛЕННАЯ ФУНКЦИЯ СПИСАНИЯ: правильно работает с льготными поездками
+    function debitRide(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(!card) return { success: false, message: 'Карта не найдена' };
+        if(card.unlimited) {
+            card.totalRides = (card.totalRides || 0) + 1;
+            saveAll();
+            addNotification(card.userId, '🎫 Поездка совершена (безлимит)', 'info');
+            return { success: true, message: 'Поездка списана (безлимит)' };
+        }
+        if(card.blocked && card.stopList) {
+            return { success: false, message: 'Карта в стоп-листе. Пополните баланс для разблокировки' };
+        }
+        
+        let success = false;
+        let message = '';
+        
+        if(card.type === 'general') {
+            if(card.balance >= 37) {
+                card.balance -= 37;
+                card.обычныеСовершено = (card.обычныеСовершено || 0) + 1;
+                card.обычныеДоступно = Math.floor(card.balance / 37);
+                card.totalRides = card.обычныеСовершено;
+                success = true;
+                message = 'Списана 1 поездка (37 руб)';
+            } else {
+                card.balance -= 37;
+                card.обычныеСовершено = (card.обычныеСовершено || 0) + 1;
+                card.обычныеДоступно = Math.floor(card.balance / 37);
+                card.totalRides = card.обычныеСовершено;
+                success = true;
+                message = 'Списана 1 поездка (баланс ушёл в минус)';
+                card.blocked = true;
+                card.stopList = true;
+                addNotification(card.userId, '🔴 Карта в стоп-листе! Пополните баланс для разблокировки.', 'error');
+            }
+        } 
+        else if(card.type === 'schoolboy' || card.type === 'student') {
+            const льготЦена = card.type === 'schoolboy' ? 8.4 : 21;
+            
+            // ЕСЛИ ЕСТЬ ЛЬГОТНЫЕ ПОЕЗДКИ - ИСПОЛЬЗУЕМ ИХ
+            if(card.льготныеОсталось > 0) {
+                if(card.balance >= льготЦена) {
+                    card.льготныеОсталось--;
+                    card.льготныеСовершено++;
+                    card.balance -= льготЦена;
+                    card.totalRides = card.льготныеСовершено + (card.обычныеСовершено || 0);
+                    success = true;
+                    message = `Списана 1 льготная поездка (${льготЦена} руб). Осталось льготных: ${card.льготныеОсталось}`;
+                } else {
+                    // НЕДОСТАТОЧНО СРЕДСТВ ДЛЯ ЛЬГОТНОЙ ПОЕЗДКИ
+                    success = false;
+                    message = `Недостаточно средств для льготной поездки. Нужно ${льготЦена} руб, доступно ${card.balance} руб`;
+                    card.blocked = true;
+                    card.stopList = true;
+                    addNotification(card.userId, '🔴 Карта в стоп-листе! Пополните баланс для разблокировки.', 'error');
+                }
+            } 
+            else {
+                // ЛЬГОТНЫЕ ПОЕЗДКИ ЗАКОНЧИЛИСЬ - ИСПОЛЬЗУЕМ ОБЫЧНЫЕ (37 руб)
+                if(card.balance >= 37) {
+                    card.balance -= 37;
+                    card.обычныеСовершено = (card.обычныеСовершено || 0) + 1;
+                    card.обычныеДоступно = Math.floor(card.balance / 37);
+                    card.totalRides = card.льготныеСовершено + card.обычныеСовершено;
+                    success = true;
+                    message = 'Списана 1 обычная поездка (37 руб)';
+                } else {
+                    success = false;
+                    message = `Недостаточно средств для поездки. Нужно 37 руб, доступно ${card.balance} руб`;
+                    card.blocked = true;
+                    card.stopList = true;
+                    addNotification(card.userId, '🔴 Карта в стоп-листе! Пополните баланс для разблокировки.', 'error');
+                }
+            }
+        }
+        
+        if(success) {
+            recalcRides(card);
+            addNotification(card.userId, `🎫 ${message}`, 'info');
+        }
+        saveAll();
+        return { success, message };
+    }
+
+    function blockTransportCard(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card) { card.blocked = true; saveAll(); addNotification(card.userId, '🔒 ТК заблокирована', 'warning'); return true; }
+        return false;
+    }
+
+    function unblockTransportCard(cardId) {
+        const card = transportCards.find(c => c.id === cardId);
+        if(card) { 
+            card.blocked = false; 
+            card.stopList = false;
+            saveAll(); 
+            addNotification(card.userId, '✅ ТК разблокирована', 'success'); 
+            return true; 
+        }
+        return false;
+    }
+
+    function addTopUpRequest(userId, amount) {
+        topUpRequests.push({ id: Date.now(), userId, amount, status: 'pending', createdAt: new Date().toISOString() });
+        saveAll();
+        addNotification(userId, `📨 Заявка на пополнение ${amount} руб отправлена`, 'info');
+        users.filter(u => u.role === 'admin').forEach(admin => addNotification(admin.id, `💰 Заявка на пополнение от ${users.find(u => u.id === userId)?.fullname} на ${amount} руб`, 'info'));
+        return true;
+    }
+
+    function approveTopUpRequest(requestId) {
+        const request = topUpRequests.find(r => r.id === requestId);
+        if(request) {
+            const card = getUserCard(request.userId);
+            if(card) {
+                updateCardBalance(card.id, card.balance + request.amount);
+            }
+            request.status = 'approved';
+            request.approvedAt = new Date().toISOString();
+            saveAll();
+            addNotification(request.userId, `✅ Заявка на пополнение ${request.amount} руб подтверждена!`, 'success');
+            return true;
+        }
+        return false;
+    }
+
+    function rejectTopUpRequest(requestId) {
+        const request = topUpRequests.find(r => r.id === requestId);
+        if(request) {
+            request.status = 'rejected';
+            saveAll();
+            addNotification(request.userId, `❌ Заявка на пополнение ${request.amount} руб отклонена`, 'error');
+            return true;
+        }
+        return false;
+    }
+
+    function getCardTypeText(type) {
+        const types = { schoolboy: 'Школьник', student: 'Студент', general: 'Общепользовательская', social: 'Льготная' };
+        return types[type] || type;
+    }
+
+    function getUserCard(userId) { return transportCards.find(c => c.userId === userId && c.status === 'approved'); }
+    function getPendingCards() { return transportCards.filter(c => c.status === 'pending'); }
+    function getPendingTopUpRequests() { return topUpRequests.filter(r => r.status === 'pending'); }
+
+    // ========== ЗАДАЧИ ==========
+    function addTask(title, description, assignedTo, deadline) {
+        tasks.push({ id: getNextId(tasks), title: title.trim(), description: description.trim() || '', assignedTo: parseInt(assignedTo), createdBy: currentUser.id, status: 'new', deadline: deadline || '', createdAt: new Date().toISOString() });
+        saveAll();
+        addNotification(assignedTo, `📋 Новая задача: ${title}`, 'task');
+        return true;
+    }
+
+    function updateTaskStatus(taskId, newStatus) {
+        const task = tasks.find(t => t.id === taskId);
+        if(task) { task.status = newStatus; saveAll(); addNotification(task.assignedTo, `📌 Задача "${task.title}" → ${newStatus === 'done' ? 'Выполнена' : newStatus === 'progress' ? 'В работе' : 'Новая'}`, 'task'); return true; }
+        return false;
+    }
+
+    function deleteTask(taskId) {
+        const task = tasks.find(t => t.id === taskId);
+        if(task) { tasks = tasks.filter(t => t.id !== taskId); saveAll(); addNotification(task.assignedTo, `🗑 Задача "${task.title}" удалена`, 'warning'); return true; }
+        return false;
+    }
+
+    function getTasksForUser(userId, role) { return role === 'admin' ? tasks : tasks.filter(t => t.assignedTo === userId); }
+
+    // ========== МЕРОПРИЯТИЯ ==========
+    function addEvent(title, description, date, time, location) {
+        events.push({ id: getNextId(events), title, description, date, time, location, createdAt: new Date().toISOString() });
+        saveAll();
+        users.forEach(u => { if(u.role !== 'admin') addNotification(u.id, `📅 Новое мероприятие: ${title} ${date} ${time}`, 'info'); });
+        return true;
+    }
+
+    function deleteEvent(eventId) {
+        events = events.filter(e => e.id !== eventId);
+        saveAll();
+        return true;
+    }
+
+    function getFutureEvents() {
+        const today = new Date().toISOString().split('T')[0];
+        return events.filter(e => e.date >= today).sort((a,b) => a.date.localeCompare(b.date));
+    }
+
+    // ========== КАЛЕНДАРЬ ПИТАНИЯ ==========
+    function getCalendarDays() {
+        const today = new Date();
+        const days = [];
+        for (let i = 0; i < 14; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+            days.push(date.toISOString().split('T')[0]);
+        }
+        return days;
+    }
+
+    function getWeekdayName(dateStr) {
+        const date = new Date(dateStr);
+        const weekdays = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+        return weekdays[date.getDay()];
+    }
+
+    function formatDateRu(dateStr) {
+        const [year, month, day] = dateStr.split('-');
+        return `${day}.${month}.${year}`;
+    }
+
+    // ========== РЕНДЕР ==========
+    function renderAuthScreen() {
+        let mode = 'login', errorMsg = '';
+        const container = document.getElementById('app');
+        function showAuth() {
+            if(mode === 'login') {
+                container.innerHTML = `<div class="auth-box"><h2 style="text-align:center;">🏛 Депутатская школа</h2><h3>Вход</h3><form id="loginForm"><div class="form-group"><label>Логин</label><input type="text" id="login_username" required></div><div class="form-group"><label>Пароль</label><input type="password" id="login_password" required></div>${errorMsg ? `<div class="error-msg">${errorMsg}</div>` : ''}<button type="submit" style="width:100%">🔐 Войти</button></form><div class="switch-auth">Нет аккаунта? <a id="goToRegister">Зарегистрироваться</a></div><div style="margin-top:15px; font-size:12px; text-align:center;">🔑 admin / admin123</div></div>`;
+                document.getElementById('loginForm').addEventListener('submit', (e) => { e.preventDefault(); const result = loginUser(document.getElementById('login_username').value, document.getElementById('login_password').value); if(result.success) renderApp(); else { errorMsg = result.message; showAuth(); } });
+                document.getElementById('goToRegister').addEventListener('click', () => { mode = 'register'; showAuth(); });
+            } else {
+                container.innerHTML = `<div class="auth-box"><h2 style="text-align:center;">📝 Регистрация</h2><form id="registerForm"><div class="form-group"><label>Логин *</label><input type="text" id="reg_login" required></div><div class="form-group"><label>Пароль *</label><input type="password" id="reg_password" required></div><div class="form-group"><label>ФИО</label><input type="text" id="reg_fullname"></div><div class="form-group"><label>Группа</label><input type="text" id="reg_group"></div>${errorMsg ? `<div class="error-msg">${errorMsg}</div>` : ''}<button type="submit" style="width:100%; background:#0B2B40; font-size:1.1rem; padding:12px;">✨ Зарегистрироваться</button></form><div class="switch-auth">Уже есть аккаунт? <a id="goToLogin">Войти</a></div></div>`;
+                document.getElementById('registerForm').addEventListener('submit', (e) => { e.preventDefault(); const login = document.getElementById('reg_login').value, pwd = document.getElementById('reg_password').value, fullname = document.getElementById('reg_fullname').value, group = document.getElementById('reg_group').value; if(!login || !pwd) { errorMsg = 'Логин и пароль обязательны'; showAuth(); return; } if(registerUser(login, pwd, fullname, group)) { errorMsg = ''; mode = 'login'; showAuth(); alert('Регистрация успешна!'); } else { errorMsg = 'Логин уже существует'; showAuth(); } });
+                document.getElementById('goToLogin').addEventListener('click', () => { mode = 'login'; showAuth(); });
+            }
+        }
+        showAuth();
+    }
+
+    function renderProfileModal() {
+        return `<div class="modal ${showProfileModal ? 'show' : ''}" id="profileModal"><div class="modal-content"><h3>✏️ Редактирование профиля</h3><form id="profileEditForm"><div class="form-group"><label>ФИО</label><input type="text" id="edit_fullname" value="${currentUser.fullname.replace(/</g, '&lt;').replace(/>/g, '&gt;')}"></div><div class="form-group"><label>Дата рождения</label><input type="date" id="edit_birthDate" value="${currentUser.birthDate || ''}"></div><div class="form-group"><label>Город</label><input type="text" id="edit_city" value="${currentUser.city || ''}"></div><div class="form-group"><label>Школа</label><input type="text" id="edit_school" value="${currentUser.school || ''}"></div><div class="form-group"><label>Группа</label><input type="text" id="edit_group" value="${currentUser.group || ''}"></div><button type="submit">💾 Сохранить</button><button type="button" id="closeProfileModal" style="background:#95a5a6;">❌ Закрыть</button></form></div></div>`;
+    }
+
+    function renderNotificationsDropdown() {
+        const userNotifs = getUserNotifications(currentUser.id);
+        return `<div class="notifications-dropdown ${showNotifications ? 'show' : ''}" id="notifDropdown">${userNotifs.length === 0 ? '<div class="notification-item">📭 Нет уведомлений</div>' : userNotifs.slice(0, 20).map(n => `<div class="notification-item ${n.type === 'task' ? 'task' : n.type === 'low-balance' ? 'low-balance' : ''}">${n.message}<div class="notification-time">${n.time}</div></div>`).join('')}</div>`;
+    }
+
+    function renderImportantNotifications() {
+        const activeNotifs = getActiveImportantNotifications();
+        if(activeNotifs.length === 0) return '';
+        return activeNotifs.map(n => `
+            <div class="important-notification">
+                <button class="close-notif" onclick="window.dismissImportantHandler(${n.id})">✕</button>
+                <strong>🔔 ${n.title}</strong>
+                <p style="margin-top:5px;">${n.message}</p>
+            </div>
+        `).join('');
+    }
+
+    function renderCardStats(card) {
+        if(!card) return '<p>Нет карты</p>';
+        if(card.unlimited) {
+            return `
+                <div class="transport-card unlimited">
+                    <strong>⭐ ЛЬГОТНАЯ КАРТА (БЕЗЛИМИТ)</strong><br>
+                    Номер: ${card.cardNumberFormatted}<br>
+                    Тип: ${getCardTypeText(card.type)}<br>
+                    ✅ Совершено поездок: ${card.totalRides || 0}<br>
+                    ⭐ Безлимит<br>
+                    💰 Баланс: Безлимит
+                </div>
+            `;
+        }
+        if(card.type === 'general') {
+            return `
+                <div class="transport-card ${card.blocked ? 'blocked stoplist' : ''}">
+                    <strong>${card.blocked ? '🔴 КАРТА В СТОП-ЛИСТЕ И ЗАБЛОКИРОВАНА' : '✅ КАРТА АКТИВНА'}</strong><br>
+                    Номер: ${card.cardNumberFormatted}<br>
+                    Тип: ${getCardTypeText(card.type)}<br>
+                    ✅ Совершено поездок: ${card.обычныеСовершено || 0}<br>
+                    🚌 Доступно поездок: ${Math.max(0, card.обычныеДоступно || 0)}<br>
+                    💰 Баланс: ${card.balance} руб
+                    ${card.blocked ? '<div class="info-banner" style="margin-top:10px;">❌ Пополните баланс для разблокировки</div>' : ''}
+                </div>
+            `;
+        }
+        if(card.type === 'schoolboy' || card.type === 'student') {
+            const льготЦена = card.type === 'schoolboy' ? '8.40 руб' : '21 руб';
+            const льготМакс = card.type === 'schoolboy' ? 45 : 50;
+            return `
+                <div class="transport-card ${card.blocked ? 'blocked stoplist' : ''}">
+                    <strong>${card.blocked ? '🔴 КАРТА В СТОП-ЛИСТЕ И ЗАБЛОКИРОВАНА' : '✅ КАРТА АКТИВНА'}</strong><br>
+                    Номер: ${card.cardNumberFormatted}<br>
+                    Тип: ${getCardTypeText(card.type)}<br>
+                    ✅ Совершено поездок: ${(card.льготныеСовершено || 0) + (card.обычныеСовершено || 0)} (из них льготных: ${card.льготныеСовершено || 0})<br>
+                    🎟 Осталось льготных: ${card.льготныеОсталось || 0} из ${льготМакс} (по ${льготЦена})<br>
+                    🚌 Обычных поездок доступно: ${card.обычныеДоступно || 0}<br>
+                    💰 Баланс: ${card.balance} руб
+                    ${card.blocked ? '<div class="info-banner" style="margin-top:10px;">❌ Пополните баланс для разблокировки</div>' : ''}
+                </div>
+            `;
+        }
+        return '';
+    }
+
+    function renderMealCalendar() {
+        const days = getCalendarDays();
+        const today = new Date().toISOString().split('T')[0];
+        
+        const calendarHtml = `
+            <div class="calendar">
+                ${days.map(date => `
+                    <div class="calendar-day ${selectedMealDate === date ? 'selected' : ''} ${date === today ? 'today' : ''} ${hasMealOnDate(date) ? 'has-meal' : ''}" onclick="window.selectMealDate('${date}')">
+                        <div>${formatDateRu(date)}</div>
+                        <div style="font-size:0.7rem;">${getWeekdayName(date)}</div>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+        
+        const mealsOnDate = getMealsByDate(selectedMealDate);
+        let mealsHtml = '';
+        if(mealsOnDate.length === 0) {
+            mealsHtml = '<p>🍽 Меню на выбранную дату не назначено</p>';
+        } else {
+            mealsHtml = mealsOnDate.map(m => `
+                <div class="meal-item">
+                    <strong>${m.mealType === 'breakfast' ? '🍳 Завтрак' : m.mealType === 'lunch' ? '🍲 Обед' : '🍽 Ужин'}</strong>
+                    <br>${m.dishes.replace(/\n/g, '<br>')}
+                </div>
+            `).join('');
+        }
+        
+        return `
+            <div class="card">
+                <h3>📅 Питание (календарь на 14 дней)</h3>
+                ${calendarHtml}
+                <div style="margin-top:20px;">
+                    <h4>🍽 Меню на ${formatDateRu(selectedMealDate)}</h4>
+                    ${mealsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderCabinet() {
+        const userCard = getUserCard(currentUser.id);
+        const isPending = currentUser.status === 'pending';
+        const futureEvents = getFutureEvents().slice(0, 5);
+        
+        return `
+            ${renderImportantNotifications()}
+            ${isPending ? `<div class="warning-banner"><p>⚠️ Учётная запись ожидает подтверждения администратором</p></div>` : ''}
+            <div class="card"><h3>🚌 Моя транспортная карта</h3>
+                ${userCard ? renderCardStats(userCard) : (transportCards.find(c => c.userId === currentUser.id && c.status === 'pending') ? `<div class="warning-banner"><p>⏳ Заявка на ТК ожидает подтверждения</p></div>` : `
+                    <form id="cardRequestForm"><div class="form-group"><label>Номер ТК (9 цифр, XXX XXX XXX)</label><input type="text" id="card_number" placeholder="XXX XXX XXX" maxlength="11" required><small>Пример: 123 456 789</small></div>
+                    <button type="submit">📨 Подать заявку</button></form>
+                    <div class="card" style="margin-top:15px;"><h3>💰 Пополнить баланс</h3>
+                    <form id="topUpForm"><div class="form-group"><input type="number" id="topup_amount" placeholder="Сумма пополнения" required min="1"></div>
+                    <button type="submit">📨 Подать заявку на пополнение</button></form></div>
+                `)}
+            </div>
+            ${renderMealCalendar()}
+            <div class="card"><h3>📅 Ближайшие мероприятия</h3>
+                ${futureEvents.length === 0 ? '<p>Нет мероприятий</p>' : futureEvents.map(e => `<div class="meal-item"><strong>${e.title}</strong><br>📅 ${e.date} ${e.time}<br>📍 ${e.location}<br>${e.description}</div>`).join('')}
+            </div>
+            <div class="card"><h3>📋 Мои задачи</h3><div id="tasksList"></div></div>
+        `;
+    }
+
+    function renderTasks() {
+        const userTasks = getTasksForUser(currentUser.id, currentUser.role);
+        const container = document.getElementById('tasksList');
+        if(!container) return;
+        if(userTasks.length === 0) { container.innerHTML = '<p>✅ Нет задач</p>'; return; }
+        container.innerHTML = userTasks.map(task => `<div style="background:#f8f9fa;padding:12px;margin:10px 0;border-radius:12px;border-left:4px solid #0B2B40;"><strong>${task.title}</strong><span class="badge" style="background:${task.status === 'new' ? '#dc3545' : task.status === 'progress' ? '#ffc107' : '#28a745'};color:white;margin-left:10px;">${task.status === 'new' ? 'Новая' : task.status === 'progress' ? 'В работе' : 'Выполнена'}</span><p>${task.description}</p><small>📅 Срок: ${task.deadline || 'Не указан'}</small><div style="margin-top:10px;"><select onchange="window.updateTaskStatusHandler(${task.id}, this.value)" style="width:auto;display:inline-block;"><option value="new" ${task.status === 'new' ? 'selected' : ''}>🆕 Новая</option><option value="progress" ${task.status === 'progress' ? 'selected' : ''}>⚙️ В работе</option><option value="done" ${task.status === 'done' ? 'selected' : ''}>✅ Выполнена</option></select></div></div>`).join('');
+    }
+
+    function renderAdminPanel() {
+        if(currentUser?.role !== 'admin') return '<div class="card">⛔ Доступ запрещен</div>';
+        const pendingCards = getPendingCards();
+        const adminCard = getUserCard(currentUser.id);
+        const pendingTopUps = getPendingTopUpRequests();
+        
+        return `
+            ${renderImportantNotifications()}
+            <div class="card"><h3>🔔 Управление важными уведомлениями</h3>
+                <form id="addImportantForm" style="margin-bottom:20px;"><div class="form-group"><input type="text" id="important_title" placeholder="Заголовок" required></div><div class="form-group"><textarea id="important_message" placeholder="Текст" rows="3" required></textarea></div><button type="submit">➕ Добавить</button></form>
+                <div id="importantList"></div>
+            </div>
+            <div class="card"><h3>💰 Заявки на пополнение (${pendingTopUps.length})</h3>
+                ${pendingTopUps.length === 0 ? '<p>Нет заявок</p>' : `<table><thead><tr><th>Пользователь</th><th>Сумма</th><th>Дата</th><th>Действие</th></tr></thead><tbody>${pendingTopUps.map(req => { const user = users.find(u => u.id === req.userId); return `<tr><td>${user?.fullname}<br><small>${user?.login}</small></td><td>${req.amount} руб</td><td>${new Date(req.createdAt).toLocaleDateString()}</td><td><button class="btn-confirm" onclick="window.approveTopUpHandler(${req.id})">✅ Подтвердить</button><button class="btn-delete" onclick="window.rejectTopUpHandler(${req.id})">❌ Отклонить</button></td></tr>`}).join('')}</tbody></table>`}
+            </div>
+            <div class="card"><h3>🚌 Моя транспортная карта</h3>
+                ${adminCard ? `
+                    <div class="transport-card ${adminCard.blocked ? 'blocked stoplist' : ''} ${adminCard.unlimited ? 'unlimited' : ''}">
+                        <strong>${adminCard.blocked ? '🔴 КАРТА В СТОП-ЛИСТЕ' : (adminCard.unlimited ? '⭐ ЛЬГОТНАЯ' : '✅ АКТИВНА')}</strong><br>
+                        Номер: ${adminCard.cardNumberFormatted}<br>
+                        Тип: ${getCardTypeText(adminCard.type)}<br>
+                        ${!adminCard.unlimited ? `<div class="balance-info"><div class="balance-item">💰 Баланс: ${adminCard.balance} руб</div></div>` : '<div>⭐ Безлимит</div>'}
+                        <div style="margin-top:15px; display:flex; flex-wrap:wrap; gap:10px;">
+                            ${!adminCard.unlimited ? `<button class="btn-edit" id="topUpMyCardBtn">💰 Пополнить</button>` : ''}
+                            <button class="btn-debit" id="debitMyCardBtn">🎫 Списать поездку</button>
+                            ${!adminCard.blocked ? `<button class="btn-block" id="blockMyCardBtn">🔒 Блокировать</button>` : `<button class="btn-unblock" id="unblockMyCardBtn">✅ Разблокировать</button>`}
+                            <button class="btn-delete-card" id="deleteMyCardBtn">🗑 Удалить карту</button>
+                        </div>
+                    </div>
+                ` : (transportCards.find(c => c.userId === currentUser.id && c.status === 'pending') ? `<div class="warning-banner"><p>⏳ Заявка на ТК ожидает подтверждения</p></div>` : `<form id="adminCardRequestForm"><div class="form-group"><label>Номер ТК (9 цифр)</label><input type="text" id="admin_card_number" placeholder="XXX XXX XXX" maxlength="11" required></div><button type="submit">📨 Подать заявку</button></form>`)}
+            </div>
+            <div class="card"><h3>🚌 Заявки на ТК</h3>
+                ${pendingCards.length === 0 ? '<p>📭 Нет заявок</p>' : `<tr><thead><tr><th>Пользователь</th><th>Номер</th><th>Тип</th><th>Действие</th></tr></thead><tbody>${pendingCards.map(card => { const user = users.find(u => u.id === card.userId); return `<tr><td>${user?.fullname}<br><small>${user?.login}</small></td><td>${card.cardNumberFormatted}</td><td><select id="card_type_${card.id}"><option value="schoolboy">🎒 Школьник</option><option value="student">📚 Студент</option><option value="general">🚌 Общепользовательская</option><option value="social">💝 Льготная</option></select></td><td><button class="btn-confirm" onclick="window.approveCardHandler(${card.id})">✅ Подтвердить</button><button class="btn-delete" onclick="window.rejectCardHandler(${card.id})">❌ Отклонить</button></td></tr>`}).join('')}</tbody></table>`}
+            </div>
+            <div class="card"><h3>👥 Управление пользователями и ТК</h3>
+                <div style="overflow-x:auto;"><table><thead><tr><th>Пользователь</th><th>Статус</th><th>ТК номер</th><th>💰 Баланс</th><th>Льготные</th><th>Статус ТК</th><th>Действия с ТК</th><th>Действия</th></tr></thead><tbody>
+                    ${users.filter(u => u.role !== 'admin').map(u => { const card = getUserCard(u.id); const isSchoolboyStudent = card && (card.type === 'schoolboy' || card.type === 'student'); return `<tr>
+                        <td>${u.fullname}<br><small>${u.login}</small><br><button class="btn-edit" onclick="window.editUserProfileHandler(${u.id})">✏️ Ред. профиль</button></td>
+                        <td><select id="user_confirm_${u.id}" onchange="window.updateUserConfirmHandler(${u.id}, this.value)"><option value="pending" ${u.status === 'pending' ? 'selected' : ''}>⏳ Ожидает</option><option value="approved" ${u.status === 'approved' ? 'selected' : ''}>✅ Подтверждён</option></select><br><select id="user_status_${u.id}" onchange="window.updateUserStatusHandler(${u.id}, this.value)"><option value="active" ${u.userStatus === 'active' ? 'selected' : ''}>Активен</option><option value="vacation" ${u.userStatus === 'vacation' ? 'selected' : ''}>Отпуск</option><option value="fired" ${u.userStatus === 'fired' ? 'selected' : ''}>Уволен</option><option value="restricted" ${u.userStatus === 'restricted' ? 'selected' : ''}>Ограничен</option></select></td>
+                        <td>${card ? card.cardNumberFormatted : '—'}</td>
+                        <td>${card && !card.unlimited ? `<input type="number" id="balance_${u.id}" value="${card.balance}" style="width:100px;"><button class="btn-edit" onclick="window.updateCardBalanceHandler(${u.id})">💰 Обновить</button>` : (card?.unlimited ? 'Безлимит' : '—')}</td>
+                        <td>${isSchoolboyStudent ? `${card.льготныеОсталось} из ${card.type === 'schoolboy' ? 45 : 50}<br><button class="btn-edit" onclick="window.аннулироватьЛьготные(${card.id})">❌ Аннулировать все</button><br><button class="btn-confirm" onclick="window.восстановитьЛьготные(${card.id})">🔄 Восстановить все</button>` : (card?.type === 'social' ? '∞ Безлимит' : '—')}</td>
+                        <td>${card ? (card.blocked ? '<span class="badge badge-blocked">🔒 Стоп-лист</span>' : '<span class="badge badge-active">✅ Активна</span>') : '—'}</td>
+                        <td>${card ? `<button class="btn-debit" onclick="window.debitCardHandler(${card.id}, ${u.id})">🎫 Списать поездку</button>${!card.blocked ? `<button class="btn-block" onclick="window.blockCardHandler(${card.id})">🔒 Блокировать</button>` : `<button class="btn-unblock" onclick="window.unblockCardHandler(${card.id})">✅ Разблокировать</button>`}<button class="btn-delete-card" onclick="window.deleteCardHandler(${card.id}, ${u.id})">🗑 Удалить ТК</button>` : ''}</td>
+                        <td><button class="btn-change-password" onclick="window.changePasswordHandler(${u.id})">🔑 Сменить пароль</button><br><button class="btn-delete" onclick="window.deleteUserByAdminHandler(${u.id})">🗑 Удалить ЛК</button></td>
+                    </tr>`}).join('')}
+                </tbody></table></div>
+            </div>
+            <div class="card"><h3>🍽 Управление питанием</h3>
+                <form id="addMealForm" style="margin-bottom:20px;"><div class="form-group"><label>Дата</label><input type="date" id="meal_date" required></div><div class="form-group"><label>Приём пищи</label><select id="meal_type"><option value="breakfast">🍳 Завтрак</option><option value="lunch">🍲 Обед</option><option value="dinner">🍽 Ужин</option></select></div><div class="form-group"><label>Блюда с ценами</label><textarea id="meal_dishes" rows="4" placeholder="Каша овсяная - 50 руб&#10;Чай - 10 руб" required></textarea></div><button type="submit">➕ Добавить</button></form>
+                <div id="mealsList"></div>
+            </div>
+            <div class="card"><h3>📅 Управление мероприятиями</h3>
+                <form id="addEventForm"><div class="form-group"><input type="text" id="event_title" placeholder="Название" required></div><div class="form-group"><textarea id="event_description" placeholder="Описание" rows="2"></textarea></div><div class="form-group"><input type="date" id="event_date" required></div><div class="form-group"><input type="time" id="event_time" required></div><div class="form-group"><input type="text" id="event_location" placeholder="Место" required></div><button type="submit">➕ Добавить</button></form>
+                <div id="eventsList"></div>
+            </div>
+            <div class="card"><h3>📋 Задачи</h3>
+                <button id="showAddTaskBtn" style="margin-bottom:15px;">+ Добавить задачу</button>
+                <div id="addTaskForm" style="display:none; margin-bottom:15px; padding:15px; background:#f8f9fa; border-radius:12px;"><form id="taskForm"><input type="text" id="task_title" placeholder="Название" required><textarea id="task_description" placeholder="Описание" rows="2"></textarea><select id="task_assigned">${users.filter(u => u.status === 'approved').map(u => `<option value="${u.id}">${u.fullname}</option>`).join('')}</select><input type="date" id="task_deadline"><button type="submit">✅ Создать</button><button type="button" id="cancelTaskBtn" style="background:#95a5a6;">❌ Отмена</button></form></div>
+                <div id="allTasksList"></div>
+            </div>
+        `;
+    }
+
+    function renderImportantList() {
+        const container = document.getElementById('importantList');
+        if(!container) return;
+        if(importantNotifications.length === 0) { container.innerHTML = '<p>Нет уведомлений</p>'; return; }
+        container.innerHTML = importantNotifications.map(n => `<div class="meal-item"><strong>🔔 ${n.title}</strong><br>${n.message}<br><small>${new Date(n.createdAt).toLocaleDateString()}</small><br><button class="btn-delete" onclick="window.deleteImportantHandler(${n.id})">🗑 Удалить</button></div>`).join('');
+    }
+
+    function renderMealsList() {
+        const container = document.getElementById('mealsList');
+        if(!container) return;
+        const sortedMeals = [...meals].sort((a,b) => a.date.localeCompare(b.date));
+        if(sortedMeals.length === 0) { container.innerHTML = '<p>Нет меню</p>'; return; }
+        container.innerHTML = sortedMeals.map(m => `<div class="meal-item"><strong>📅 ${m.date} - ${m.mealType === 'breakfast' ? '🍳 Завтрак' : m.mealType === 'lunch' ? '🍲 Обед' : '🍽 Ужин'}</strong><br>${m.dishes.replace(/\n/g, '<br>')}<br><button class="btn-delete" onclick="window.deleteMealHandler(${m.id})">🗑 Удалить</button></div>`).join('');
+    }
+
+    function renderEventsList() {
+        const container = document.getElementById('eventsList');
+        if(!container) return;
+        const sortedEvents = [...events].sort((a,b) => a.date.localeCompare(b.date));
+        if(sortedEvents.length === 0) { container.innerHTML = '<p>Нет мероприятий</p>'; return; }
+        container.innerHTML = sortedEvents.map(e => `<div class="meal-item"><strong>📅 ${e.date} ${e.time} - ${e.title}</strong><br>📍 ${e.location}<br>${e.description}<br><button class="btn-delete" onclick="window.deleteEventHandler(${e.id})">🗑 Удалить</button></div>`).join('');
+    }
+
+    function renderAllTasks() {
+        const container = document.getElementById('allTasksList');
+        if(!container) return;
+        if(tasks.length === 0) { container.innerHTML = '<p>📭 Нет задач</p>'; return; }
+        container.innerHTML = tasks.map(task => { const assignedUser = users.find(u => u.id === task.assignedTo); return `<div class="meal-item"><strong>${task.title}</strong><br>👤 Назначена: ${assignedUser?.fullname}<br>📅 Срок: ${task.deadline || 'Не указан'}<br><button class="btn-delete" onclick="window.deleteTaskHandler(${task.id})">🗑 Удалить</button></div>`; }).join('');
+    }
+
+    // ========== ГЛОБАЛЬНЫЕ ОБРАБОТЧИКИ ==========
+    window.selectMealDate = (date) => { selectedMealDate = date; renderApp(); };
+    window.confirmUserHandler = (userId) => { confirmUser(userId); renderApp(); };
+    window.updateUserConfirmHandler = (userId, value) => { if(value === 'approved') confirmUser(userId); };
+    window.updateUserStatusHandler = (userId, value) => { updateUserAccountStatus(userId, value); renderApp(); };
+    window.deleteUserByAdminHandler = (userId) => { if(confirm('Удалить пользователя?')) { deleteUserAccount(userId); renderApp(); } };
+    window.changePasswordHandler = (userId) => { const newPwd = prompt('Новый пароль:'); if(newPwd && changeUserPassword(userId, newPwd)) alert('✅ Пароль изменён!'); renderApp(); };
+    window.editUserProfileHandler = (userId) => { const user = users.find(u => u.id === userId); if(user) { const newFullname = prompt('ФИО:', user.fullname); const newBirthDate = prompt('Дата рождения (ГГГГ-ММ-ДД):', user.birthDate || ''); const newCity = prompt('Город:', user.city || ''); const newSchool = prompt('Школа:', user.school || ''); const newGroup = prompt('Группа:', user.group || ''); updateUserProfile(userId, { fullname: newFullname || user.fullname, birthDate: newBirthDate || '', city: newCity || '', school: newSchool || '', group: newGroup || '' }); renderApp(); alert('✅ Профиль обновлён!'); } };
+    window.approveCardHandler = (cardId) => { const select = document.getElementById(`card_type_${cardId}`); if(select) { approveTransportCard(cardId, select.value); renderApp(); } };
+    window.rejectCardHandler = (cardId) => { rejectTransportCard(cardId); renderApp(); };
+    window.deleteCardHandler = (cardId, userId) => { if(confirm('Удалить ТК?')) { deleteTransportCard(cardId, userId); renderApp(); } };
+    window.blockCardHandler = (cardId) => { if(confirm('Заблокировать ТК?')) { blockTransportCard(cardId); renderApp(); } };
+    window.unblockCardHandler = (cardId) => { if(confirm('Разблокировать ТК?')) { unblockTransportCard(cardId); renderApp(); } };
+    window.updateCardBalanceHandler = (userId) => { const card = getUserCard(userId); if(card && !card.unlimited) { const newBalance = parseInt(document.getElementById(`balance_${userId}`).value); if(!isNaN(newBalance)) { updateCardBalance(card.id, newBalance); renderApp(); } } };
+    window.debitCardHandler = (cardId, userId) => { const result = debitRide(cardId); alert(result.message); renderApp(); };
+    window.approveTopUpHandler = (requestId) => { approveTopUpRequest(requestId); renderApp(); };
+    window.rejectTopUpHandler = (requestId) => { rejectTopUpRequest(requestId); renderApp(); };
+    window.deleteMealHandler = (mealId) => { if(confirm('Удалить меню?')) { deleteMeal(mealId); renderApp(); } };
+    window.deleteEventHandler = (eventId) => { if(confirm('Удалить мероприятие?')) { deleteEvent(eventId); renderApp(); } };
+    window.deleteTaskHandler = (taskId) => { if(confirm('Удалить задачу?')) { deleteTask(taskId); renderApp(); } };
+    window.updateTaskStatusHandler = (taskId, newStatus) => { updateTaskStatus(taskId, newStatus); renderApp(); };
+    window.addImportantHandler = () => { addImportantNotification(document.getElementById('important_title').value, document.getElementById('important_message').value); renderApp(); alert('✅ Уведомление добавлено!'); };
+    window.deleteImportantHandler = (notifId) => { if(confirm('Удалить уведомление?')) { deleteImportantNotification(notifId); renderApp(); } };
+    window.dismissImportantHandler = (notifId) => { dismissImportantNotification(notifId); };
+    window.аннулироватьЛьготные = (cardId) => { if(confirm('Аннулировать все льготные поездки?')) { аннулироватьВсеЛьготныеПоездки(cardId); renderApp(); } };
+    window.восстановитьЛьготные = (cardId) => { if(confirm('Восстановить все льготные поездки?')) { восстановитьВсеЛьготныеПоездки(cardId); renderApp(); } };
+
+    function renderApp() {
+        const container = document.getElementById('app');
+        if(!currentUser) { renderAuthScreen(); return; }
+        
+        const isAdmin = currentUser.role === 'admin';
+        const unreadCount = getUnreadNotificationsCount(currentUser.id);
+        
+        container.innerHTML = `<div class="header"><div class="logo"><h1>🏛 Депутатская школа</h1></div><div class="user-info"><div class="notifications-icon" id="notifIcon">🔔${unreadCount > 0 ? `<span class="notifications-count">${unreadCount}</span>` : ''}</div><span>👤 ${currentUser.fullname}</span><button class="profile-edit-btn" id="profileEditBtn">✏️ Редактировать профиль</button>${isAdmin ? `<button class="save-exit-btn" id="saveExitBtn">💾 Сохранить и выйти</button>` : ''}<button class="logout-btn" id="logoutBtn">🚪 Выйти</button>${renderNotificationsDropdown()}</div></div><div class="nav-tabs"><button class="nav-btn ${activeTab === 'cabinet' ? 'active' : ''}" data-tab="cabinet">📋 Личный кабинет</button>${isAdmin ? `<button class="nav-btn ${activeTab === 'adminPanel' ? 'active' : ''}" data-tab="adminPanel">⚙️ Админ-панель</button>` : ''}</div><div class="content-pane" id="dynamicContent"></div>${renderProfileModal()}`;
+        
+        const contentDiv = document.getElementById('dynamicContent');
+        
+        if(activeTab === 'cabinet') {
+            contentDiv.innerHTML = renderCabinet();
+            const cardInput = document.getElementById('card_number');
+            if(cardInput) cardInput.addEventListener('input', function() { formatCardNumber(this); });
+            const cardForm = document.getElementById('cardRequestForm');
+            if(cardForm) cardForm.addEventListener('submit', (e) => { e.preventDefault(); const result = requestTransportCard(currentUser.id, document.getElementById('card_number').value); if(!result.success) alert(result.message); renderApp(); });
+            const topUpForm = document.getElementById('topUpForm');
+            if(topUpForm) topUpForm.addEventListener('submit', (e) => { e.preventDefault(); const amount = parseInt(document.getElementById('topup_amount').value); if(amount > 0) { addTopUpRequest(currentUser.id, amount); alert('Заявка отправлена администратору'); renderApp(); } });
+            renderTasks();
+        } else if(activeTab === 'adminPanel' && isAdmin) {
+            contentDiv.innerHTML = renderAdminPanel();
+            
+            const topUpMyCardBtn = document.getElementById('topUpMyCardBtn');
+            if(topUpMyCardBtn) topUpMyCardBtn.addEventListener('click', () => { const amount = prompt('Сумма пополнения:'); if(amount && !isNaN(amount)) { const card = getUserCard(currentUser.id); if(card) updateCardBalance(card.id, card.balance + parseInt(amount)); renderApp(); } });
+            const debitMyCardBtn = document.getElementById('debitMyCardBtn');
+            if(debitMyCardBtn) debitMyCardBtn.addEventListener('click', () => { const card = getUserCard(currentUser.id); if(card) { const result = debitRide(card.id); alert(result.message); renderApp(); } });
+            const blockMyCardBtn = document.getElementById('blockMyCardBtn');
+            if(blockMyCardBtn) blockMyCardBtn.addEventListener('click', () => { const card = getUserCard(currentUser.id); if(card && confirm('Заблокировать карту?')) { blockTransportCard(card.id); renderApp(); } });
+            const unblockMyCardBtn = document.getElementById('unblockMyCardBtn');
+            if(unblockMyCardBtn) unblockMyCardBtn.addEventListener('click', () => { const card = getUserCard(currentUser.id); if(card && confirm('Разблокировать карту?')) { unblockTransportCard(card.id); renderApp(); } });
+            const deleteMyCardBtn = document.getElementById('deleteMyCardBtn');
+            if(deleteMyCardBtn) deleteMyCardBtn.addEventListener('click', () => { const card = getUserCard(currentUser.id); if(card && confirm('Удалить карту?')) { deleteTransportCard(card.id, currentUser.id); renderApp(); } });
+            
+            const adminCardInput = document.getElementById('admin_card_number');
+            if(adminCardInput) adminCardInput.addEventListener('input', function() { formatCardNumber(this); });
+            const adminCardForm = document.getElementById('adminCardRequestForm');
+            if(adminCardForm) adminCardForm.addEventListener('submit', (e) => { e.preventDefault(); const result = requestTransportCard(currentUser.id, document.getElementById('admin_card_number').value); if(!result.success) alert(result.message); renderApp(); });
+            
+            const addImportantForm = document.getElementById('addImportantForm');
+            if(addImportantForm) addImportantForm.addEventListener('submit', (e) => { e.preventDefault(); addImportantNotification(document.getElementById('important_title').value, document.getElementById('important_message').value); renderApp(); alert('✅ Уведомление добавлено!'); });
+            renderImportantList();
+            
+            const addMealForm = document.getElementById('addMealForm');
+            if(addMealForm) addMealForm.addEventListener('submit', (e) => { e.preventDefault(); addMeal(document.getElementById('meal_date').value, document.getElementById('meal_type').value, document.getElementById('meal_dishes').value); renderApp(); alert('✅ Меню добавлено!'); });
+            renderMealsList();
+            
+            const addEventForm = document.getElementById('addEventForm');
+            if(addEventForm) addEventForm.addEventListener('submit', (e) => { e.preventDefault(); addEvent(document.getElementById('event_title').value, document.getElementById('event_description').value, document.getElementById('event_date').value, document.getElementById('event_time').value, document.getElementById('event_location').value); renderApp(); alert('✅ Мероприятие добавлено!'); });
+            renderEventsList();
+            
+            const showAddBtn = document.getElementById('showAddTaskBtn');
+            const addForm = document.getElementById('addTaskForm');
+            if(showAddBtn && addForm) {
+                showAddBtn.addEventListener('click', () => { addForm.style.display = addForm.style.display === 'none' ? 'block' : 'none'; });
+                const cancelBtn = document.getElementById('cancelTaskBtn');
+                if(cancelBtn) cancelBtn.addEventListener('click', () => { addForm.style.display = 'none'; });
+            }
+            const taskForm = document.getElementById('taskForm');
+            if(taskForm) taskForm.addEventListener('submit', (e) => { e.preventDefault(); addTask(document.getElementById('task_title').value, document.getElementById('task_description').value, document.getElementById('task_assigned').value, document.getElementById('task_deadline').value); renderApp(); });
+            renderAllTasks();
+        }
+        
+        document.querySelectorAll('.nav-btn').forEach(btn => { btn.addEventListener('click', () => { activeTab = btn.getAttribute('data-tab'); renderApp(); }); });
+        document.getElementById('logoutBtn')?.addEventListener('click', () => logout(true));
+        document.getElementById('saveExitBtn')?.addEventListener('click', () => { alert('✅ Все данные сохранены!'); logout(true); });
+        document.getElementById('profileEditBtn')?.addEventListener('click', () => { showProfileModal = true; renderApp(); });
+        document.getElementById('closeProfileModal')?.addEventListener('click', () => { showProfileModal = false; renderApp(); });
+        document.getElementById('profileEditForm')?.addEventListener('submit', (e) => { e.preventDefault(); updateUserProfile(currentUser.id, { fullname: document.getElementById('edit_fullname').value, birthDate: document.getElementById('edit_birthDate').value, city: document.getElementById('edit_city').value, school: document.getElementById('edit_school').value, group: document.getElementById('edit_group').value }); showProfileModal = false; renderApp(); alert('✅ Профиль обновлён!'); });
+        
+        const notifIcon = document.getElementById('notifIcon');
+        if(notifIcon) notifIcon.addEventListener('click', (e) => { e.stopPropagation(); showNotifications = !showNotifications; if(showNotifications) markNotificationsAsRead(currentUser.id); renderApp(); });
+        
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('notifDropdown');
+            const icon = document.getElementById('notifIcon');
+            if(dropdown && icon && !icon.contains(e.target) && !dropdown.contains(e.target) && showNotifications) { showNotifications = false; renderApp(); }
+        });
+        
+        const modal = document.getElementById('profileModal');
+        if(modal && showProfileModal) modal.addEventListener('click', (e) => { if(e.target === modal) { showProfileModal = false; renderApp(); } });
+    }
+
+    loadData();
+    loadSession();
+    renderApp();
+</script>
+</body>
+</html>
