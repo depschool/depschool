@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Депутатская школа — Официальный портал</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #F0F4FA 0%, #E2EAF3 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* MODAL WINDOWS */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 20000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-container {
+            background: white;
+            border-radius: 32px;
+            padding: 28px 32px;
+            max-width: 700px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-container {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #1F2F4F;
+        }
+
+        .modal-input, .modal-select, .modal-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            margin: 12px 0;
+            background: white;
+        }
+
+        .modal-textarea {
+            border-radius: 20px;
+            resize: vertical;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        /* GRADIENT GRID */
+        .gradient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+            gap: 10px;
+            margin: 16px 0;
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 8px;
+        }
+
+        .gradient-card {
+            border-radius: 16px;
+            padding: 14px 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .gradient-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .gradient-card.selected {
+            border: 3px solid #1F2F4F;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #1F2F4F;
+        }
+
+        .toast-notification {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1F2F4F;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-size: 0.85rem;
+            z-index: 20001;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        /* LOGIN */
+        .login-container {
+            max-width: 460px;
+            margin: 0 auto;
+        }
+
+        .login-card {
+            background: rgba(255, 255, 255, 0.96);
+            border-radius: 40px;
+            padding: 40px 36px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .logo-area {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .logo-area h1 {
+            font-size: 1.9rem;
+            font-weight: 600;
+            color: #1F2F4F;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #2C3E5C;
+            margin-bottom: 6px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #E2E8F0;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            background: white;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: #1F2F4F;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+
+        .login-btn:hover { background: #12243D; }
+        .register-link { text-align: center; margin-top: 24px; font-size: 0.85rem; color: #5F6F8F; }
+        .register-link a { color: #1F2F4F; font-weight: 600; cursor: pointer; }
+        .victory-block { text-align: center; margin-top: 24px; padding-top: 20px; border-top: 2px solid #E8A317; }
+        .victory-text { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #D4AF37, #C93A1F); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .error-message { background: #FEF3F2; border-left: 3px solid #DC2626; padding: 10px 14px; border-radius: 16px; font-size: 0.75rem; color: #B91C1C; margin-bottom: 16px; }
+
+        /* MAIN APP */
+        .app-wrapper {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+        }
+
+        .fade-out-page { opacity: 0; transition: opacity 0.4s ease; }
+
+        .header {
+            padding: 20px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            border-bottom: 1px solid #EFF3F8;
+            background: white;
+        }
+
+        .logo { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+        .logo h1 { font-size: 1.5rem; font-weight: 600; color: #1F2F4F; }
+        .victory-badge { display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #0C2D49, #1A1F2E); padding: 6px 18px; border-radius: 60px; color: white; }
+        .user-area { display: flex; align-items: center; gap: 20px; background: #F8FAFE; padding: 8px 20px; border-radius: 60px; position: relative; }
+
+        /* SLIDER */
+        .slider-section { margin: 0 28px 28px 28px; background: white; border-radius: 28px; overflow: hidden; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04); }
+        .slider-container { position: relative; overflow: hidden; }
+        .slider-track { display: flex; transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1); }
+        .slider-slide { min-width: 100%; padding: 24px 28px; cursor: pointer; transition: 0.2s; }
+        .slider-slide:hover { filter: brightness(0.97); }
+        .slider-dots { display: flex; justify-content: center; gap: 12px; padding: 16px 0 20px 0; background: white; }
+        .dot { width: 8px; height: 8px; background: #CBD5E1; border-radius: 50%; cursor: pointer; transition: 0.2s; }
+        .dot.active { background: #1F2F4F; transform: scale(1.3); }
+        .banner-slide { border-radius: 24px; padding: 20px 24px; text-align: center; }
+
+        /* NAVIGATION */
+        .nav-tabs { display: flex; gap: 6px; padding: 12px 28px 0 28px; background: white; border-bottom: 1px solid #EEF2F8; flex-wrap: wrap; }
+        .nav-btn { background: transparent; border: none; padding: 10px 24px; font-size: 0.9rem; font-weight: 500; color: #5F6F8F; border-radius: 40px; cursor: pointer; transition: 0.2s; }
+        .nav-btn.active { background: #EEF3FA; color: #1F2F4F; }
+
+        .content-area { padding: 28px; }
+        .card { background: white; border-radius: 24px; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid #EEF2F8; }
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem; }
+        .card-header .icon { width: 40px; height: 40px; background: #F4F8FE; border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        .card-header h2 { font-size: 1.2rem; font-weight: 500; color: #1F2F4F; }
+        .tk-card { background: linear-gradient(135deg, #1E2F4F, #15253F); color: white; border-radius: 28px; padding: 1.4rem; margin-bottom: 1.8rem; }
+
+        .btn { background: #F0F4FA; border: none; padding: 8px 20px; border-radius: 40px; font-size: 0.75rem; font-weight: 500; cursor: pointer; transition: 0.2s; color: #1F2F4F; }
+        .btn-primary { background: #1F2F4F; color: white; }
+        .btn-primary:hover { background: #12243D; transform: translateY(-1px); }
+        .btn-danger { background: #dc3545; color: white; }
+        .btn-success { background: #28a745; color: white; }
+        .btn-warning { background: #ffc107; color: #1F2F4F; }
+
+        .table-modern { width: 100%; border-collapse: collapse; }
+        .table-modern th, .table-modern td { padding: 12px 8px; border-bottom: 1px solid #F4F8FE; text-align: left; vertical-align: top; }
+        .table-modern th { background: #F8FAFE; font-weight: 600; }
+
+        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin: 20px 0; }
+        .cal-day { background: #F8FAFE; text-align: center; padding: 8px 4px; border-radius: 20px; font-size: 0.7rem; cursor: pointer; }
+        .cal-day.selected { background: #1F2F4F; color: white; }
+
+        .chat-messages { max-height: 400px; overflow-y: auto; margin-bottom: 16px; padding-right: 8px; }
+        .chat-message { background: #F8FAFE; border-radius: 20px; padding: 10px 14px; margin-bottom: 12px; }
+        .chat-message.own { background: #E8F0FE; }
+        .message-author { font-weight: 600; font-size: 0.8rem; margin-bottom: 4px; }
+        .message-text { font-size: 0.85rem; word-break: break-word; }
+        .message-date { font-size: 0.65rem; color: #8A99B0; margin-top: 4px; }
+
+        /* MAINTENANCE PAGES - WHITE BACKGROUND + CLEAN CARD */
+        .maintenance-page {
+            text-align: center;
+            padding: 80px 20px;
+            background: white;
+            border-radius: 32px;
+            max-width: 550px;
+            margin: 40px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .maintenance-page h1 { font-size: 1.8rem; margin-bottom: 20px; color: #1F2F4F; }
+        .maintenance-page .message-box {
+            background: #F8FAFE;
+            border-radius: 24px;
+            padding: 24px;
+            margin: 20px 0;
+            color: #4A5A7A;
+            line-height: 1.5;
+        }
+        .countdown { font-size: 1rem; font-weight: 600; color: #1F2F4F; margin: 20px 0; }
+        .server-status-badge {
+            display: inline-block;
+            padding: 6px 20px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .server-status-badge.maintenance { background: #E3F2FD; color: #1565C0; }
+        .server-status-badge.attack { background: #FFEBEE; color: #C62828; }
+        .server-status-badge.closed { background: #ECEFF1; color: #455A64; }
+        .emergency-login-btn {
+            margin-top: 30px;
+            background: transparent;
+            border: 1px solid #CBD5E1;
+            color: #64748B;
+            padding: 8px 24px;
+            border-radius: 60px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .emergency-login-btn:hover { background: #F1F5F9; }
+
+        .server-preview {
+            margin-top: 20px;
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid #E2E8F0;
+        }
+
+        @media (max-width: 700px) {
+            .content-area { padding: 18px; }
+            .nav-btn { padding: 8px 16px; font-size: 0.75rem; }
+            .slider-slide { padding: 16px; }
+            .gradient-grid { grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+<div id="appRoot"></div>
+
+<script>
+    // ========== УТИЛИТЫ ==========
+    function showToast(message, isError = false) {
+        const toast = document.createElement('div');
+        toast.className = 'toast-notification';
+        toast.textContent = message;
+        toast.style.background = isError ? '#dc3545' : '#1F2F4F';
+        document.body.appendChild(toast);
+        setTimeout(() => toast.style.opacity = '1', 10);
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 2800);
+    }
+
+    function showConfirm(title, message) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML = `<div class="modal-container"><div class="modal-title">${title}</div><div style="margin-bottom:20px;">${message}</div><div class="modal-buttons"><button class="btn" id="modalCancel">Отмена</button><button class="btn btn-primary" id="modalConfirm">Подтвердить</button></div></div>`;
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.classList.add('active'), 10);
+            const confirmBtn = overlay.querySelector('#modalConfirm');
+            const cancelBtn = overlay.querySelector('#modalCancel');
+            const cleanup = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+            confirmBtn.onclick = () => { cleanup(); resolve(true); };
+            cancelBtn.onclick = () => { cleanup(); resolve(false); };
+        });
+    }
+
+    function showPrompt(title, placeholder = '', isTextarea = false) {
+        return new Promise((resolve) => {
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            const inputHtml = isTextarea ? `<textarea class="modal-textarea" id="modalInput" placeholder="${placeholder}" rows="3"></textarea>` : `<input type="text" class="modal-input" id="modalInput" placeholder="${placeholder}" autocomplete="off">`;
+            overlay.innerHTML = `<div class="modal-container"><div class="modal-title">${title}</div>${inputHtml}<div class="modal-buttons"><button class="btn" id="modalCancel">Отмена</button><button class="btn btn-primary" id="modalConfirm">ОК</button></div></div>`;
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.classList.add('active'), 10);
+            const input = overlay.querySelector('#modalInput');
+            const confirmBtn = overlay.querySelector('#modalConfirm');
+            const cancelBtn = overlay.querySelector('#modalCancel');
+            const cleanup = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+            confirmBtn.onclick = () => { cleanup(); resolve(input.value); };
+            cancelBtn.onclick = () => { cleanup(); resolve(null); };
+            input.focus();
+        });
+    }
+
+    // ВИЗУАЛЬНЫЙ ВЫБОР ГРАДИЕНТА
+    function showGradientPickerVisual(defaultGradientId = 'grad-1', defaultTextColor = '#ffffff') {
+        return new Promise((resolve) => {
+            const gradients = [
+                { name: "grad-1", background: "linear-gradient(135deg, #0C2D49, #1A1F2E)" },
+                { name: "grad-2", background: "linear-gradient(135deg, #1E2F4F, #15253F)" },
+                { name: "grad-3", background: "linear-gradient(135deg, #FFF8E7, #FFE8C7)" },
+                { name: "grad-4", background: "linear-gradient(135deg, #2D5A3F, #1A3A28)" },
+                { name: "grad-5", background: "linear-gradient(145deg, #2B2D42, #1A1C2E)" },
+                { name: "grad-6", background: "linear-gradient(135deg, #D4AF37, #B8860B)" },
+                { name: "grad-7", background: "linear-gradient(135deg, #C93A1F, #9B2E15)" },
+                { name: "grad-8", background: "linear-gradient(135deg, #1B6B87, #0E4A62)" },
+                { name: "grad-9", background: "linear-gradient(135deg, #2A7F5A, #1E5F43)" },
+                { name: "grad-10", background: "linear-gradient(135deg, #6F42C1, #4B2A8E)" },
+                { name: "grad-11", background: "linear-gradient(135deg, #E83E8C, #B62066)" },
+                { name: "grad-12", background: "linear-gradient(135deg, #FD7E14, #D45A0A)" },
+                { name: "grad-13", background: "linear-gradient(135deg, #20C997, #128F6B)" },
+                { name: "grad-14", background: "linear-gradient(135deg, #17A2B8, #0F6B7A)" },
+                { name: "grad-15", background: "linear-gradient(135deg, #6610F2, #4A0DAB)" },
+                { name: "grad-16", background: "linear-gradient(135deg, #FFC107, #D39E00)" },
+                { name: "grad-17", background: "linear-gradient(135deg, #28A745, #1B7E34)" },
+                { name: "grad-18", background: "linear-gradient(135deg, #DC3545, #A51E2C)" },
+                { name: "grad-19", background: "linear-gradient(135deg, #343A40, #1C2024)" },
+                { name: "grad-20", background: "linear-gradient(135deg, #6C757D, #4B525A)" },
+                { name: "grad-21", background: "linear-gradient(135deg, #F8F9FA, #E2E6EA)" },
+                { name: "grad-22", background: "linear-gradient(135deg, #E9ECEF, #CED4DA)" },
+                { name: "grad-23", background: "linear-gradient(135deg, #D4EDDA, #C3E6CB)" },
+                { name: "grad-24", background: "linear-gradient(135deg, #FFF3CD, #FFE8A1)" },
+                { name: "grad-25", background: "linear-gradient(135deg, #F8D7DA, #F5C6CB)" },
+                { name: "grad-26", background: "linear-gradient(135deg, #D1ECF1, #B8E0E8)" },
+                { name: "grad-27", background: "linear-gradient(135deg, #0B3D5F, #062135)" },
+                { name: "grad-28", background: "linear-gradient(135deg, #4A3B2C, #2D1F12)" },
+                { name: "grad-29", background: "linear-gradient(135deg, #3A5F4B, #1F3A2C)" },
+                { name: "grad-30", background: "linear-gradient(135deg, #5E2A4A, #3B1530)" },
+                { name: "grad-31", background: "linear-gradient(135deg, #2A5F7A, #153D52)" },
+                { name: "grad-32", background: "linear-gradient(135deg, #D4AF37, #8B6914)" },
+                { name: "grad-33", background: "linear-gradient(135deg, #C93A1F, #7A1F0D)" },
+                { name: "grad-34", background: "linear-gradient(135deg, #1B6B87, #0B3E52)" },
+                { name: "grad-35", background: "linear-gradient(135deg, #28A745, #16632B)" },
+                { name: "grad-36", background: "linear-gradient(135deg, #6F42C1, #3B1E6E)" },
+                { name: "grad-37", background: "linear-gradient(135deg, #E83E8C, #99145A)" },
+                { name: "grad-38", background: "linear-gradient(135deg, #FD7E14, #A64A04)" },
+                { name: "grad-39", background: "linear-gradient(135deg, #20C997, #0B6145)" },
+                { name: "grad-40", background: "linear-gradient(135deg, #17A2B8, #0C5563)" },
+                { name: "grad-41", background: "linear-gradient(135deg, #6610F2, #3A078B)" },
+                { name: "grad-42", background: "linear-gradient(135deg, #FFC107, #8A6300)" },
+                { name: "grad-43", background: "linear-gradient(135deg, #DC3545, #76121D)" },
+                { name: "grad-44", background: "linear-gradient(135deg, #343A40, #121416)" },
+                { name: "grad-45", background: "linear-gradient(135deg, #6C757D, #353A40)" },
+                { name: "grad-46", background: "linear-gradient(135deg, #0F2027, #203A43, #2C5364)" },
+                { name: "grad-47", background: "linear-gradient(135deg, #FF9A9E, #FECFEF)" },
+                { name: "grad-48", background: "linear-gradient(135deg, #FAD980, #F9D423)" },
+                { name: "grad-49", background: "linear-gradient(135deg, #96C93D, #6B9C1F)" },
+                { name: "grad-50", background: "linear-gradient(135deg, #00C9FF, #92FE9D)" },
+                { name: "grad-51", background: "linear-gradient(135deg, #F5576C, #F093FB)" },
+                { name: "grad-52", background: "linear-gradient(135deg, #4FACFE, #00F2FE)" },
+                { name: "grad-53", background: "linear-gradient(135deg, #43C6AC, #191654)" },
+                { name: "grad-54", background: "linear-gradient(135deg, #FF6B6B, #556270)" },
+                { name: "grad-55", background: "linear-gradient(135deg, #FFB75E, #ED8F03)" }
+            ];
+
+            const colorOptions = [
+                { value: "#ffffff", label: "⚪ Белый" },
+                { value: "#1F2F4F", label: "🔵 Тёмно-синий" },
+                { value: "#000000", label: "⚫ Чёрный" },
+                { value: "#D4AF37", label: "🟡 Золотой" },
+                { value: "#DC3545", label: "🔴 Красный" },
+                { value: "#28A745", label: "🟢 Зелёный" }
+            ];
+
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            
+            let gridHtml = '<div class="gradient-grid">';
+            gradients.forEach(g => {
+                const isSelected = g.name === defaultGradientId;
+                gridHtml += `<div class="gradient-card ${isSelected ? 'selected' : ''}" data-gradient="${g.name}" style="background: ${g.background}; color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">${g.name.replace('grad-', '')}</div>`;
+            });
+            gridHtml += '</div>';
+
+            let colorSelectHtml = '<select class="modal-select" id="colorSelect">';
+            colorOptions.forEach(c => {
+                colorSelectHtml += `<option value="${c.value}" ${c.value === defaultTextColor ? 'selected' : ''}>${c.label}</option>`;
+            });
+            colorSelectHtml += '</select>';
+
+            overlay.innerHTML = `<div class="modal-container"><div class="modal-title">🎨 Выберите градиент (кликните на цветную плитку)</div>${gridHtml}<div class="form-group"><label>🎨 Цвет текста:</label>${colorSelectHtml}</div><div class="gradient-preview" id="gradientPreview" style="background: ${gradients.find(g => g.name === defaultGradientId)?.background || '#1E2F4F'}; color: ${defaultTextColor}; padding: 20px; border-radius: 20px; text-align: center; transition: 0.2s;">✨ ПРЕВЬЮ СЛАЙДА ✨</div><div class="modal-buttons"><button class="btn" id="modalCancel">Отмена</button><button class="btn btn-primary" id="modalConfirm">✅ Применить</button></div></div>`;
+            
+            document.body.appendChild(overlay);
+            setTimeout(() => overlay.classList.add('active'), 10);
+            
+            let selectedGradient = defaultGradientId;
+            const preview = overlay.querySelector('#gradientPreview');
+            const colorSelect = overlay.querySelector('#colorSelect');
+            
+            function updatePreview() {
+                const grad = gradients.find(g => g.name === selectedGradient);
+                if (grad) preview.style.background = grad.background;
+                preview.style.color = colorSelect.value;
+                preview.innerHTML = `✨ ПРЕВЬЮ СЛАЙДА ✨<br><span style="font-size:0.75rem;">Градиент ${selectedGradient.replace('grad-', '')}</span>`;
+            }
+            
+            document.querySelectorAll('.gradient-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    document.querySelectorAll('.gradient-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    selectedGradient = card.dataset.gradient;
+                    updatePreview();
+                });
+            });
+            
+            colorSelect.addEventListener('change', updatePreview);
+            updatePreview();
+            
+            const confirmBtn = overlay.querySelector('#modalConfirm');
+            const cancelBtn = overlay.querySelector('#modalCancel');
+            const cleanup = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+            
+            confirmBtn.onclick = () => { cleanup(); resolve({ gradientId: selectedGradient, textColor: colorSelect.value }); };
+            cancelBtn.onclick = () => { cleanup(); resolve(null); };
+        });
+    }
+
+    function showGosuslugiConfirm(actionCallback, skipCheckbox = false) {
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `<div class="modal-container"><div class="modal-title">🔐 Подтверждение через Госуслуги</div><div class="form-group"><label>Логин Госуслуг</label><input type="text" id="gosLogin" class="modal-input" placeholder="Логин" autocomplete="off"></div><div class="form-group"><label>Пароль Госуслуг</label><input type="password" id="gosPass" class="modal-input" placeholder="Пароль" autocomplete="off"></div>${skipCheckbox ? '' : '<div class="form-group"><label><input type="checkbox" id="skipGosuslugi"> Пропустить проверку на следующие 3 входа</label></div>'}<div class="modal-buttons"><button class="btn" id="modalCancel">Отмена</button><button class="btn btn-primary" id="modalConfirm">Подтвердить</button></div></div>`;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.classList.add('active'), 10);
+        const confirmBtn = overlay.querySelector('#modalConfirm');
+        const cancelBtn = overlay.querySelector('#modalCancel');
+        const cleanup = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+        confirmBtn.onclick = () => {
+            const login = overlay.querySelector('#gosLogin').value.trim();
+            const pass = overlay.querySelector('#gosPass').value.trim();
+            if (login === '89523449121' && pass === 'администратор') {
+                cleanup();
+                actionCallback();
+            } else {
+                showToast('Неверный логин или пароль Госуслуг', true);
+            }
+        };
+        cancelBtn.onclick = () => { cleanup(); };
+    }
+
+    // ========== ДАННЫЕ ==========
+    let users = JSON.parse(localStorage.getItem('school_users_final')) || [];
+    let cards = JSON.parse(localStorage.getItem('school_cards_final')) || [];
+    let tasks = JSON.parse(localStorage.getItem('school_tasks_final')) || [];
+    let meals = JSON.parse(localStorage.getItem('school_meals_final')) || [];
+    let events = JSON.parse(localStorage.getItem('school_events_final')) || [];
+    let important = JSON.parse(localStorage.getItem('school_important_final')) || [];
+    let topups = JSON.parse(localStorage.getItem('school_topups_final')) || [];
+    let notifs = JSON.parse(localStorage.getItem('school_notifs_final')) || [];
+    let operationHistory = JSON.parse(localStorage.getItem('school_operation_history')) || [];
+    let news = JSON.parse(localStorage.getItem('school_news')) || [];
+    let taskChats = JSON.parse(localStorage.getItem('school_task_chats')) || [];
+    let customSlides = JSON.parse(localStorage.getItem('school_custom_slides')) || [];
+    let maintenance = JSON.parse(localStorage.getItem('school_maintenance')) || { serverStatus: 'active', message: "Ведутся плановые технические работы.", endTime: null };
+
+    function saveAll() {
+        localStorage.setItem('school_users_final', JSON.stringify(users));
+        localStorage.setItem('school_cards_final', JSON.stringify(cards));
+        localStorage.setItem('school_tasks_final', JSON.stringify(tasks));
+        localStorage.setItem('school_meals_final', JSON.stringify(meals));
+        localStorage.setItem('school_events_final', JSON.stringify(events));
+        localStorage.setItem('school_important_final', JSON.stringify(important));
+        localStorage.setItem('school_topups_final', JSON.stringify(topups));
+        localStorage.setItem('school_notifs_final', JSON.stringify(notifs));
+        localStorage.setItem('school_operation_history', JSON.stringify(operationHistory));
+        localStorage.setItem('school_news', JSON.stringify(news));
+        localStorage.setItem('school_task_chats', JSON.stringify(taskChats));
+        localStorage.setItem('school_custom_slides', JSON.stringify(customSlides));
+        localStorage.setItem('school_maintenance', JSON.stringify(maintenance));
+    }
+
+    const gradientPresets = [
+        { name: "grad-1", background: "linear-gradient(135deg, #0C2D49, #1A1F2E)" },
+        { name: "grad-2", background: "linear-gradient(135deg, #1E2F4F, #15253F)" },
+        { name: "grad-3", background: "linear-gradient(135deg, #FFF8E7, #FFE8C7)" },
+        { name: "grad-4", background: "linear-gradient(135deg, #2D5A3F, #1A3A28)" },
+        { name: "grad-5", background: "linear-gradient(145deg, #2B2D42, #1A1C2E)" },
+        { name: "grad-6", background: "linear-gradient(135deg, #D4AF37, #B8860B)" },
+        { name: "grad-7", background: "linear-gradient(135deg, #C93A1F, #9B2E15)" },
+        { name: "grad-8", background: "linear-gradient(135deg, #1B6B87, #0E4A62)" },
+        { name: "grad-9", background: "linear-gradient(135deg, #2A7F5A, #1E5F43)" },
+        { name: "grad-10", background: "linear-gradient(135deg, #6F42C1, #4B2A8E)" },
+        { name: "grad-11", background: "linear-gradient(135deg, #E83E8C, #B62066)" },
+        { name: "grad-12", background: "linear-gradient(135deg, #FD7E14, #D45A0A)" },
+        { name: "grad-13", background: "linear-gradient(135deg, #20C997, #128F6B)" },
+        { name: "grad-14", background: "linear-gradient(135deg, #17A2B8, #0F6B7A)" },
+        { name: "grad-15", background: "linear-gradient(135deg, #6610F2, #4A0DAB)" },
+        { name: "grad-16", background: "linear-gradient(135deg, #FFC107, #D39E00)" },
+        { name: "grad-17", background: "linear-gradient(135deg, #28A745, #1B7E34)" },
+        { name: "grad-18", background: "linear-gradient(135deg, #DC3545, #A51E2C)" },
+        { name: "grad-19", background: "linear-gradient(135deg, #343A40, #1C2024)" },
+        { name: "grad-20", background: "linear-gradient(135deg, #6C757D, #4B525A)" },
+        { name: "grad-21", background: "linear-gradient(135deg, #F8F9FA, #E2E6EA)" },
+        { name: "grad-22", background: "linear-gradient(135deg, #E9ECEF, #CED4DA)" },
+        { name: "grad-23", background: "linear-gradient(135deg, #D4EDDA, #C3E6CB)" },
+        { name: "grad-24", background: "linear-gradient(135deg, #FFF3CD, #FFE8A1)" },
+        { name: "grad-25", background: "linear-gradient(135deg, #F8D7DA, #F5C6CB)" },
+        { name: "grad-26", background: "linear-gradient(135deg, #D1ECF1, #B8E0E8)" },
+        { name: "grad-27", background: "linear-gradient(135deg, #0B3D5F, #062135)" },
+        { name: "grad-28", background: "linear-gradient(135deg, #4A3B2C, #2D1F12)" },
+        { name: "grad-29", background: "linear-gradient(135deg, #3A5F4B, #1F3A2C)" },
+        { name: "grad-30", background: "linear-gradient(135deg, #5E2A4A, #3B1530)" },
+        { name: "grad-31", background: "linear-gradient(135deg, #2A5F7A, #153D52)" },
+        { name: "grad-32", background: "linear-gradient(135deg, #D4AF37, #8B6914)" },
+        { name: "grad-33", background: "linear-gradient(135deg, #C93A1F, #7A1F0D)" },
+        { name: "grad-34", background: "linear-gradient(135deg, #1B6B87, #0B3E52)" },
+        { name: "grad-35", background: "linear-gradient(135deg, #28A745, #16632B)" },
+        { name: "grad-36", background: "linear-gradient(135deg, #6F42C1, #3B1E6E)" },
+        { name: "grad-37", background: "linear-gradient(135deg, #E83E8C, #99145A)" },
+        { name: "grad-38", background: "linear-gradient(135deg, #FD7E14, #A64A04)" },
+        { name: "grad-39", background: "linear-gradient(135deg, #20C997, #0B6145)" },
+        { name: "grad-40", background: "linear-gradient(135deg, #17A2B8, #0C5563)" },
+        { name: "grad-41", background: "linear-gradient(135deg, #6610F2, #3A078B)" },
+        { name: "grad-42", background: "linear-gradient(135deg, #FFC107, #8A6300)" },
+        { name: "grad-43", background: "linear-gradient(135deg, #DC3545, #76121D)" },
+        { name: "grad-44", background: "linear-gradient(135deg, #343A40, #121416)" },
+        { name: "grad-45", background: "linear-gradient(135deg, #6C757D, #353A40)" },
+        { name: "grad-46", background: "linear-gradient(135deg, #0F2027, #203A43, #2C5364)" },
+        { name: "grad-47", background: "linear-gradient(135deg, #FF9A9E, #FECFEF)" },
+        { name: "grad-48", background: "linear-gradient(135deg, #FAD980, #F9D423)" },
+        { name: "grad-49", background: "linear-gradient(135deg, #96C93D, #6B9C1F)" },
+        { name: "grad-50", background: "linear-gradient(135deg, #00C9FF, #92FE9D)" },
+        { name: "grad-51", background: "linear-gradient(135deg, #F5576C, #F093FB)" },
+        { name: "grad-52", background: "linear-gradient(135deg, #4FACFE, #00F2FE)" },
+        { name: "grad-53", background: "linear-gradient(135deg, #43C6AC, #191654)" },
+        { name: "grad-54", background: "linear-gradient(135deg, #FF6B6B, #556270)" },
+        { name: "grad-55", background: "linear-gradient(135deg, #FFB75E, #ED8F03)" }
+    ];
+
+    if (customSlides.length === 0) {
+        customSlides = [
+            { id: 1, title: "С ДНЁМ ПОБЕДЫ!", text: "9 мая — помним, гордимся", gradientId: "grad-1", textColor: "#ffffff", linkedNewsId: null, active: true, order: 1 },
+            { id: 2, title: "Депутатская школа", text: "Официальный портал", gradientId: "grad-2", textColor: "#ffffff", linkedNewsId: null, active: true, order: 2 },
+            { id: 3, title: "🔐 Госуслуги", text: "Подключите подтверждение входа через Госуслуги", gradientId: "grad-3", textColor: "#1F2F4F", linkedNewsId: null, active: true, order: 3 },
+            { id: 4, title: "🎁 500 РУБЛЕЙ В ПОДАРОК!", text: "Оформляйте ТК", gradientId: "grad-4", textColor: "#ffffff", linkedNewsId: null, active: true, order: 4 },
+            { id: 5, title: "MAX", text: "Скачайте мессенджер MAX", gradientId: "grad-5", textColor: "#ffffff", linkedNewsId: null, active: true, order: 5 }
+        ];
+        saveAll();
+    }
+
+    // СОЗДАНИЕ АДМИНА ПО УМОЛЧАНИЮ (если нет пользователей)
+    if (users.length === 0) {
+        users.push({ id: 1, login: "admin", password: "admin123", fullname: "Администратор", role: "admin", userStatus: "active", status: "approved", group: "", birthDate: "", city: "", school: "", gosuslugiLogin: "", gosuslugiPassword: "", gosuslugiEnabled: false, gosuslugiAttempts: 3, skipGosuslugiCount: 0 });
+        users.push({ id: 2, login: "user", password: "user123", fullname: "Иван Петров", role: "user", userStatus: "active", status: "approved", group: "10А", birthDate: "2005-05-15", city: "Москва", school: "Школа №123", gosuslugiLogin: "", gosuslugiPassword: "", gosuslugiEnabled: false, gosuslugiAttempts: 3 });
+        saveAll();
+    }
+
+    let currentUser = null;
+    let activeTab = 'cabinet';
+    let selectedDate = new Date().toISOString().slice(0, 10);
+    let taskFilterStatus = 'all';
+    let taskFilterUser = 'all';
+    let sliderAutoInterval = null;
+
+    function nextId(arr) { return arr.length ? Math.max(...arr.map(x => x.id)) + 1 : 1; }
+    function addNotif(userId, msg, type = 'info') { notifs.unshift({ id: Date.now(), user_id: userId, message: msg, type, time: new Date().toLocaleString(), read: false }); saveAll(); }
+    function addHistory(userId, action, details) { operationHistory.unshift({ id: Date.now(), user_id: userId, action, details, date: new Date().toLocaleString() }); saveAll(); }
+    function getUnread(uid) { return notifs.filter(n => n.user_id === uid && !n.read).length; }
+    function markRead(uid) { notifs.forEach(n => { if (n.user_id === uid) n.read = true; }); saveAll(); }
+
+    async function setUserStatus(userId, newStatus) {
+        let u = users.find(x => x.id === userId);
+        if (u && u.role !== 'admin') {
+            let oldStatus = u.userStatus;
+            u.userStatus = newStatus;
+            saveAll();
+            let statusMessage = '';
+            if (newStatus === 'fired') statusMessage = '❌ Ваша учётная запись удалена в связи с увольнением. Доступ закрыт.';
+            else if (newStatus === 'blocked') statusMessage = '🔒 Ваш личный кабинет заблокирован. Обратитесь к администратору.';
+            else if (newStatus === 'restricted') statusMessage = '⚠️ Ваш доступ ограничен администратором.';
+            else statusMessage = '✅ Ваш статус восстановлен.';
+            addNotif(userId, statusMessage, 'warning');
+            addHistory(userId, 'Изменение статуса', `${oldStatus} → ${newStatus}`);
+            if (currentUser && currentUser.id === userId && (newStatus === 'fired' || newStatus === 'blocked')) {
+                logout();
+                showToast('Статус изменён. Вы вышли из системы.', true);
+            }
+            render();
+            return true;
+        }
+        return false;
+    }
+
+    async function changePass(id, newPass) {
+        let u = users.find(x => x.id === id);
+        if (u) { u.password = newPass; saveAll(); addNotif(id, '🔑 Пароль изменён администратором', 'warning'); addHistory(id, 'Смена пароля', 'Администратор изменил пароль'); render(); return true; }
+        return false;
+    }
+
+    async function confirmUser(id) {
+        let u = users.find(x => x.id === id);
+        if (u && u.role !== 'admin' && u.status === 'pending') { u.status = 'approved'; saveAll(); addNotif(id, '✅ Учётная запись подтверждена!', 'success'); addHistory(id, 'Подтверждение учётки', 'Администратор подтвердил'); render(); }
+    }
+
+    async function deleteUser(id) {
+        if (await showConfirm('Удаление', 'Удалить пользователя?')) {
+            users = users.filter(x => x.id !== id);
+            cards = cards.filter(x => x.user_id !== id);
+            tasks = tasks.filter(x => x.assigned_to !== id);
+            saveAll();
+            if (currentUser?.id === id) logout();
+            render();
+        }
+    }
+
+    async function unlockUser(id) {
+        let u = users.find(x => x.id === id);
+        if (u && u.userStatus === 'blocked') { u.userStatus = 'active'; u.gosuslugiAttempts = 3; saveAll(); addNotif(id, '✅ ЛК разблокирован', 'success'); addHistory(id, 'Разблокировка ЛК', 'Администратор разблокировал'); render(); }
+    }
+
+    async function register(login, pass, name, grp) {
+        if (users.find(u => u.login === login)) { showToast('Логин уже существует', true); return false; }
+        users.push({ id: nextId(users), login, password: pass, fullname: name || 'Новый пользователь', role: 'user', userStatus: 'active', status: 'pending', group: grp || '', birthDate: '', city: '', school: '', gosuslugiLogin: '', gosuslugiPassword: '', gosuslugiEnabled: false, gosuslugiAttempts: 3 });
+        saveAll(); addNotif(users[users.length - 1].id, '✅ Вы зарегистрировались. Ожидайте подтверждения администратора.', 'success'); return true;
+    }
+
+    async function loginUser(login, pass) {
+        let u = users.find(x => x.login === login && x.password === pass);
+        if (!u) { showToast('❌ Неверный логин или пароль', true); return false; }
+        if (u.userStatus === 'fired') { showToast('❌ Ваша учётная запись удалена в связи с увольнением.', true); return false; }
+        if (u.userStatus === 'blocked') { showToast('🔒 Ваш личный кабинет заблокирован. Обратитесь к администратору.', true); return false; }
+        if (u.status === 'pending') { currentUser = u; showToast('Учётная запись ожидает подтверждения администратором'); return true; }
+        currentUser = u;
+        activeTab = u.role === 'admin' ? 'adminUsers' : 'cabinet';
+        addNotif(u.id, `🔐 Вход в систему: ${new Date().toLocaleString()}`, 'info');
+        addHistory(u.id, 'Вход в систему', 'Успешный вход');
+        return true;
+    }
+
+    function logout() { currentUser = null; activeTab = 'cabinet'; render(); }
+
+    // СОХРАНЕНИЕ СЕССИИ
+    function saveSessionToFile() {
+        if (!currentUser) { showToast('Нет активной сессии', true); return; }
+        const sessionData = {
+            userId: currentUser.id,
+            login: currentUser.login,
+            timestamp: Date.now(),
+            signature: btoa(`${currentUser.id}:${currentUser.login}:${Date.now()}`)
+        };
+        const blob = new Blob([JSON.stringify(sessionData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `session_${currentUser.login}_${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('✅ Сессия сохранена в файл');
+    }
+
+    function loadSessionFromFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const sessionData = JSON.parse(e.target.result);
+                const user = users.find(u => u.id === sessionData.userId && u.login === sessionData.login);
+                if (user && user.userStatus !== 'fired' && user.userStatus !== 'blocked') {
+                    currentUser = user;
+                    activeTab = user.role === 'admin' ? 'adminUsers' : 'cabinet';
+                    render();
+                    showToast('✅ Сессия восстановлена! Добро пожаловать.');
+                } else {
+                    showToast('❌ Пользователь не найден или заблокирован', true);
+                }
+            } catch(e) { showToast('❌ Неверный файл сессии', true); }
+        };
+        reader.readAsText(file);
+    }
+
+    // УПРАВЛЕНИЕ СТАТУСОМ СЕРВЕРА
+    async function setServerStatus(status, message, endTime = null) {
+        showGosuslugiConfirm(async () => {
+            maintenance.serverStatus = status;
+            maintenance.message = message;
+            maintenance.endTime = endTime;
+            saveAll();
+            render();
+            showToast(`Статус сервера изменён на: ${status === 'active' ? '🟢 Активен' : status === 'maintenance' ? '🔧 Техработы' : status === 'attack' ? '💀 DDoS-атака' : '⛔ Закрыт'}`);
+        }, true);
+    }
+
+    // ФУНКЦИИ ДЛЯ ТРАНСПОРТНЫХ КАРТ
+    function formatCardNum(inp) { let v = inp.value.replace(/\D/g, '').slice(0, 9); let f = ''; for (let i = 0; i < v.length; i++) { if (i > 0 && i % 3 === 0) f += ' '; f += v[i]; } inp.value = f; return v; }
+    
+    async function requestCard(uid, num) { 
+        let d = num.replace(/\s/g, ''); 
+        if (!/^\d{9}$/.test(d)) { showToast('Номер карты: 9 цифр (XXX XXX XXX)', true); return false; } 
+        if (cards.find(c => c.user_id === uid && c.status !== 'rejected')) { showToast('Уже есть активная или ожидающая заявка', true); return false; } 
+        cards.push({ id: nextId(cards), user_id: uid, card_number: d, card_number_formatted: num, status: 'pending', type: null, balance: 0, льготные_осталось: 0, льготные_совершено: 0, обычные_совершено: 0, обычные_доступно: 0, total_rides: 0, blocked: false, block_reason: '', unlimited: false, requested_at: new Date().toISOString() }); 
+        saveAll(); 
+        addNotif(uid, '🚌 Заявка на транспортную карту отправлена', 'info'); 
+        addHistory(uid, 'Заявка на ТК', `Номер: ${num}`); 
+        for (let admin of users.filter(u => u.role === 'admin')) addNotif(admin.id, `📨 Новая заявка на ТК от ${users.find(u => u.id === uid)?.fullname}`, 'info'); 
+        render(); 
+        return true; 
+    }
+    
+    function approveCard(id, type) { 
+        let c = cards.find(x => x.id === id); 
+        if (c) { 
+            c.status = 'approved'; 
+            c.type = type; 
+            c.unlimited = (type === 'social'); 
+            if (type === 'schoolboy') { c.льготные_осталось = 45; c.льготные_совершено = 0; c.обычные_совершено = 0; c.обычные_доступно = 0; c.balance = 0; } 
+            else if (type === 'student') { c.льготные_осталось = 50; c.льготные_совершено = 0; c.обычные_совершено = 0; c.обычные_доступно = 0; c.balance = 0; } 
+            else if (type === 'general') { c.льготные_осталось = 0; c.обычные_совершено = 0; c.обычные_доступно = 0; c.balance = 0; } 
+            else if (type === 'social') { c.balance = 0; c.льготные_осталось = '∞'; c.total_rides = 0; } 
+            saveAll(); 
+            addNotif(c.user_id, `🚌 Транспортная карта подтверждена! Тип: ${getCardTypeText(type)}`, 'success'); 
+            addHistory(c.user_id, 'ТК подтверждена', `Тип: ${getCardTypeText(type)}`); 
+            render(); 
+        } 
+    }
+    
+    function rejectCard(id) { 
+        let c = cards.find(x => x.id === id); 
+        if (c) { c.status = 'rejected'; saveAll(); addNotif(c.user_id, '❌ Заявка на ТК отклонена', 'error'); addHistory(c.user_id, 'Заявка на ТК отклонена', 'Администратор отклонил'); render(); } 
+    }
+    
+    async function delCardById(cid, uid) { 
+        if (await showConfirm('Удаление', 'Удалить транспортную карту?')) { 
+            cards = cards.filter(x => x.id !== cid); 
+            saveAll(); 
+            addNotif(uid, '🗑 Транспортная карта удалена', 'warning'); 
+            addHistory(uid, 'ТК удалена', 'Администратор удалил карту'); 
+            render(); 
+        } 
+    }
+    
+    function recalc(c) { 
+        if (c.unlimited || c.type === 'social') return; 
+        if (c.type === 'general') { 
+            c.обычные_доступно = Math.floor(c.balance / 37); 
+            c.обычные_совершено = c.обычные_совершено || 0; 
+            c.total_rides = c.обычные_совершено; 
+        } else if (c.type === 'schoolboy' || c.type === 'student') { 
+            if (c.льготные_осталось === 0) c.обычные_доступно = Math.floor(c.balance / 37); 
+            else c.обычные_доступно = 0; 
+            c.total_rides = (c.льготные_совершено || 0) + (c.обычные_совершено || 0); 
+        } 
+        saveAll(); 
+    }
+    
+    async function instantTopUp(cardId, amount) { 
+        if (!amount || amount <= 0) { showToast('Введите сумму', true); return; } 
+        let c = cards.find(x => x.id === cardId); 
+        if (c && !c.unlimited && c.type !== 'social') { 
+            let old = c.balance; 
+            c.balance += amount; 
+            recalc(c); 
+            saveAll(); 
+            addNotif(c.user_id, `💰 Администратор пополнил баланс на ${amount} руб.`, 'success'); 
+            addHistory(c.user_id, 'Пополнение баланса', `Администратор пополнил на ${amount} руб (было ${old}, стало ${c.balance})`); 
+            render(); 
+        } 
+    }
+    
+    async function debitRide(cid) { 
+        let c = cards.find(x => x.id === cid); 
+        if (!c) { showToast('Карта не найдена', true); return; } 
+        if (c.blocked) { showToast(`Карта заблокирована. Причина: ${c.block_reason || 'Неизвестна'}`, true); return; } 
+        if (c.unlimited) { 
+            c.total_rides = (c.total_rides || 0) + 1; 
+            saveAll(); 
+            addNotif(c.user_id, '🎫 Поездка (безлимит)', 'info'); 
+            addHistory(c.user_id, 'Поездка (безлимит)', 'Списана 1 поездка'); 
+            render(); 
+            return; 
+        } 
+        let success = false, msg = ''; 
+        if (c.type === 'general') { 
+            if (c.balance >= 37) { c.balance -= 37; c.обычные_совершено = (c.обычные_совершено || 0) + 1; c.обычные_доступно = Math.floor(c.balance / 37); success = true; msg = 'Списана (37 руб)'; } 
+            else { showToast('Недостаточно средств', true); } 
+        } else if (c.type === 'schoolboy' || c.type === 'student') { 
+            let price = c.type === 'schoolboy' ? 8.4 : 21; 
+            if (c.льготные_осталось > 0 && c.льготные_осталось !== '∞') { 
+                if (c.balance >= price) { c.льготные_осталось--; c.льготные_совершено++; c.balance -= price; success = true; msg = `Льготная (${price} руб). Осталось: ${c.льготные_осталось}`; } 
+                else { showToast(`Недостаточно средств (нужно ${price} руб)`, true); } 
+            } else { 
+                if (c.balance >= 37) { c.balance -= 37; c.обычные_совершено = (c.обычные_совершено || 0) + 1; c.обычные_доступно = Math.floor(c.balance / 37); success = true; msg = 'Обычная (37 руб)'; } 
+                else { showToast('Недостаточно средств', true); } 
+            } 
+        } 
+        if (success) { recalc(c); addNotif(c.user_id, `🎫 ${msg}`, 'info'); addHistory(c.user_id, 'Поездка', msg); saveAll(); render(); } 
+    }
+    
+    async function blockCardWithReason(cardId) { 
+        let reason = await showPrompt('Причина блокировки', 'Утеря, порча, смена ФИО, другое'); 
+        if (reason) { 
+            let c = cards.find(x => x.id === cardId); 
+            if (c) { c.blocked = true; c.block_reason = reason; saveAll(); addNotif(c.user_id, `🔒 Карта заблокирована. Причина: ${c.block_reason}`, 'warning'); addHistory(c.user_id, 'Блокировка ТК', `Причина: ${c.block_reason}`); render(); } 
+        } 
+    }
+    
+    async function unblockCard(id) { 
+        let c = cards.find(x => x.id === id); 
+        if (c) { c.blocked = false; c.block_reason = ''; saveAll(); addNotif(c.user_id, '✅ ТК разблокирована', 'success'); addHistory(c.user_id, 'Разблокировка ТК', 'Карта разблокирована'); render(); } 
+    }
+    
+    async function addTopUpReq(uid, amt) { 
+        let card = getUserCard(uid); 
+        if (!card) { showToast('Нет активной карты', true); return; } 
+        if (card.type === 'social') { showToast('Льготная карта не требует пополнения', true); return; } 
+        topups.push({ id: Date.now(), user_id: uid, amount: amt, status: 'pending', created_at: new Date().toISOString() }); 
+        saveAll(); 
+        addNotif(uid, `📨 Заявка на пополнение ${amt} руб отправлена`, 'info'); 
+        addHistory(uid, 'Заявка на пополнение', `Сумма: ${amt} руб`); 
+        for (let admin of users.filter(u => u.role === 'admin')) addNotif(admin.id, `💰 Заявка на пополнение от ${users.find(u => u.id === uid)?.fullname} на ${amt} руб`, 'info'); 
+        render(); 
+    }
+    
+    function approveTopUp(reqId) { 
+        let r = topups.find(x => x.id === reqId); 
+        if (r) { 
+            let c = cards.find(x => x.user_id === r.user_id && x.status === 'approved'); 
+            if (c && c.type !== 'social') { 
+                let old = c.balance; 
+                c.balance = (c.balance || 0) + r.amount; 
+                recalc(c); 
+                addHistory(r.user_id, 'Пополнение баланса', `Подтверждена заявка на ${r.amount} руб (было ${old}, стало ${c.balance})`); 
+                saveAll(); 
+            } 
+            r.status = 'approved'; 
+            saveAll(); 
+            addNotif(r.user_id, `✅ Пополнение ${r.amount} руб подтверждено!`, 'success'); 
+            render(); 
+        } 
+    }
+    
+    function rejectTopUp(reqId) { 
+        let r = topups.find(x => x.id === reqId); 
+        if (r) { r.status = 'rejected'; saveAll(); addNotif(r.user_id, `❌ Пополнение ${r.amount} руб отклонено`, 'error'); addHistory(r.user_id, 'Заявка на пополнение', 'Отклонена администратором'); render(); } 
+    }
+    
+    function getCardTypeText(t) { const types = { schoolboy: 'Школьник', student: 'Студент', general: 'Общепользовательская', social: 'Льготная' }; return types[t] || t; }
+    function getUserCard(uid) { return cards.find(c => c.user_id === uid && c.status === 'approved'); }
+    function getPendingCards() { return cards.filter(c => c.status === 'pending'); }
+    function getPendingTopUps() { return topups.filter(r => r.status === 'pending'); }
+    function getUserHistory(uid) { return operationHistory.filter(h => h.user_id === uid).slice(0, 20); }
+
+    // ЗАДАЧИ
+    async function addTask(title, desc, to, deadline) { 
+        tasks.push({ id: nextId(tasks), title, description: desc, assigned_to: parseInt(to), created_by: currentUser.id, status: 'new', deadline, created_at: new Date().toISOString() }); 
+        saveAll(); 
+        addNotif(to, `📋 Новая задача: ${title}`, 'task'); 
+        addHistory(to, 'Новая задача', `Задача: ${title}`); 
+        render(); 
+    }
+    
+    function updTaskStatus(id, st) { 
+        let t = tasks.find(x => x.id === id); 
+        if (t) { 
+            let old = t.status; 
+            t.status = st; 
+            saveAll(); 
+            addNotif(t.assigned_to, `📌 Задача "${t.title}" → ${st}`, 'task'); 
+            addHistory(t.assigned_to, 'Изменение статуса задачи', `"${t.title}" - ${old} → ${st}`); 
+            render(); 
+        } 
+    }
+    
+    async function delTaskById(id) { 
+        if (await showConfirm('Удаление', 'Удалить задачу?')) { 
+            let t = tasks.find(x => x.id === id); 
+            if (t) addHistory(t.assigned_to, 'Удаление задачи', `Задача "${t.title}" удалена`); 
+            tasks = tasks.filter(x => x.id !== id); 
+            saveAll(); 
+            render(); 
+        } 
+    }
+    
+    function getFilteredTasks() { 
+        let filtered = tasks; 
+        if (taskFilterStatus !== 'all') filtered = filtered.filter(t => t.status === taskFilterStatus); 
+        if (taskFilterUser !== 'all') filtered = filtered.filter(t => t.assigned_to === parseInt(taskFilterUser)); 
+        return filtered; 
+    }
+    
+    function isOverdue(deadline) { return deadline && deadline < new Date().toISOString().slice(0, 10); }
+    
+    async function sendChatMessage(taskId, message) { 
+        if (!message.trim()) return; 
+        taskChats.push({ id: Date.now(), taskId, fromUserId: currentUser.id, message: message.trim(), timestamp: new Date().toISOString() }); 
+        saveAll(); 
+        const task = tasks.find(t => t.id === taskId); 
+        if (task) { 
+            const otherUser = task.assigned_to === currentUser.id ? task.created_by : task.assigned_to; 
+            if (otherUser) addNotif(otherUser, `💬 Новое сообщение в чате по задаче "${task.title}"`, 'info'); 
+        } 
+        render(); 
+    }
+    
+    function getTaskChat(taskId) { return taskChats.filter(c => c.taskId === taskId).sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp)); }
+    
+    function showChatModal(taskId, taskTitle) {
+        const chats = getTaskChat(taskId);
+        const usersList = users;
+        const messagesHtml = chats.map(chat => {
+            const user = usersList.find(u => u.id === chat.fromUserId);
+            const isOwn = chat.fromUserId === currentUser.id;
+            return `<div class="chat-message ${isOwn ? 'own' : ''}"><div class="message-author">${user?.fullname || 'Пользователь'}</div><div class="message-text">${escapeHtml(chat.message)}</div><div class="message-date">${new Date(chat.timestamp).toLocaleString()}</div></div>`;
+        }).join('');
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `<div class="modal-container" style="max-width: 550px;"><div class="modal-title">💬 Чат по задаче: ${escapeHtml(taskTitle)}</div><div class="chat-messages" id="chatMessages">${messagesHtml || '<div style="text-align:center; padding:20px;">Нет сообщений</div>'}</div><textarea id="chatInput" rows="2" placeholder="Введите сообщение..." style="width:100%; border-radius:20px; padding:12px; border:1px solid #E2E8F0; margin-bottom:12px;"></textarea><div class="modal-buttons"><button class="btn" id="closeChatBtn">Закрыть</button><button class="btn btn-primary" id="sendChatBtn">📤 Отправить</button></div></div>`;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.classList.add('active'), 10);
+        const closeBtn = overlay.querySelector('#closeChatBtn');
+        const sendBtn = overlay.querySelector('#sendChatBtn');
+        const input = overlay.querySelector('#chatInput');
+        const cleanup = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+        const sendMessage = async () => {
+            const msg = input.value.trim();
+            if (msg) { await sendChatMessage(taskId, msg); cleanup(); showChatModal(taskId, taskTitle); } else { showToast('Введите сообщение', true); }
+        };
+        sendBtn.onclick = sendMessage; closeBtn.onclick = cleanup;
+        input.addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
+        input.focus();
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[m])); }
+
+    // УПРАВЛЕНИЕ СЛАЙДЕРОМ
+    async function addSlide() {
+        let title = await showPrompt('Заголовок слайда', 'Введите заголовок');
+        if (!title) return;
+        let text = await showPrompt('Текст слайда', 'Введите текст', true);
+        if (!text) return;
+        const gradientChoice = await showGradientPickerVisual('grad-1', '#ffffff');
+        if (!gradientChoice) return;
+        let newId = customSlides.length ? Math.max(...customSlides.map(s => s.id)) + 1 : 1;
+        customSlides.push({ id: newId, title, text, gradientId: gradientChoice.gradientId, textColor: gradientChoice.textColor, linkedNewsId: null, active: true, order: customSlides.length + 1 });
+        saveAll();
+        render();
+        showToast('Слайд добавлен');
+    }
+
+    async function editSlide(slideId) {
+        let slide = customSlides.find(s => s.id === slideId);
+        if (!slide) return;
+        let newTitle = await showPrompt('Заголовок', slide.title);
+        if (newTitle !== null) slide.title = newTitle;
+        let newText = await showPrompt('Текст', slide.text, true);
+        if (newText !== null) slide.text = newText;
+        const gradientChoice = await showGradientPickerVisual(slide.gradientId, slide.textColor || '#ffffff');
+        if (gradientChoice) {
+            slide.gradientId = gradientChoice.gradientId;
+            slide.textColor = gradientChoice.textColor;
+        }
+        let newActive = await showConfirm('Активность', 'Слайд активен?');
+        slide.active = newActive;
+        saveAll();
+        render();
+        showToast('Слайд обновлён');
+    }
+
+    async function deleteSlide(slideId) {
+        if (await showConfirm('Удаление', 'Удалить слайд?')) {
+            customSlides = customSlides.filter(s => s.id !== slideId);
+            customSlides.forEach((s, idx) => s.order = idx + 1);
+            saveAll();
+            render();
+            showToast('Слайд удалён');
+        }
+    }
+
+    // НОВОСТИ
+    async function addNews(title, shortDesc, fullText, linkedSlideId = null) {
+        const newNews = { id: nextId(news), title, shortDescription: shortDesc, fullText, date: new Date().toLocaleDateString('ru-RU'), createdAt: new Date().toISOString() };
+        news.push(newNews);
+        if (linkedSlideId) {
+            const slide = customSlides.find(s => s.id === linkedSlideId);
+            if (slide) slide.linkedNewsId = newNews.id;
+        }
+        saveAll();
+        for (let u of users) if (u.role !== 'admin') addNotif(u.id, `📰 Новая новость: ${title}`, 'info');
+        render();
+        showToast('Новость создана');
+    }
+
+    async function deleteNews(newsId) {
+        if (await showConfirm('Удаление', 'Удалить новость?')) {
+            news = news.filter(n => n.id !== newsId);
+            customSlides.forEach(s => { if (s.linkedNewsId === newsId) s.linkedNewsId = null; });
+            saveAll();
+            render();
+            showToast('Новость удалена');
+        }
+    }
+
+    // ПИТАНИЕ
+    function getCalendarDays() {
+        let days = [];
+        let d = new Date();
+        for (let i = 0; i < 14; i++) {
+            let nd = new Date(d);
+            nd.setDate(d.getDate() + i);
+            days.push(nd.toISOString().slice(0, 10));
+        }
+        return days;
+    }
+    function formatDate(s) { let [y, m, d] = s.split('-'); return `${d}.${m}.${y}`; }
+    function getMealsByDate(date) { return meals.filter(m => m.date === date); }
+    
+    async function addMeal(date, type, dishes) { 
+        let exist = meals.find(m => m.date === date && m.meal_type === type); 
+        if (exist) exist.dishes = dishes; 
+        else meals.push({ id: nextId(meals), date, meal_type: type, dishes }); 
+        saveAll(); 
+        for (let u of users) if (u.role !== 'admin') addNotif(u.id, `🍽 Новое меню на ${date}`, 'info'); 
+        render(); 
+    }
+    
+    async function delMealById(id) { 
+        if (await showConfirm('Удаление', 'Удалить меню?')) { 
+            meals = meals.filter(x => x.id !== id); 
+            saveAll(); 
+            render(); 
+        } 
+    }
+
+    // МЕРОПРИЯТИЯ
+    function getFutureEvents() { let today = new Date().toISOString().slice(0, 10); return events.filter(e => e.date >= today).sort((a, b) => a.date.localeCompare(b.date)); }
+    
+    async function addEvent(title, desc, date, time, loc) { 
+        events.push({ id: nextId(events), title, description: desc, date, time, location: loc, created_at: new Date().toISOString() }); 
+        saveAll(); 
+        for (let u of users) if (u.role !== 'admin') addNotif(u.id, `📅 Новое мероприятие: ${title} ${date} ${time}`, 'info'); 
+        render(); 
+    }
+    
+    async function delEventById(id) { 
+        if (await showConfirm('Удаление', 'Удалить мероприятие?')) { 
+            events = events.filter(x => x.id !== id); 
+            saveAll(); 
+            render(); 
+        } 
+    }
+
+    // ВАЖНЫЕ УВЕДОМЛЕНИЯ
+    function dismissImportant(id) { localStorage.setItem(`dismiss_${id}`, 'true'); render(); }
+    
+    async function addImportant(title, msg) { 
+        important.push({ id: Date.now(), title, message: msg, created_at: new Date().toISOString() }); 
+        saveAll(); 
+        for (let u of users) if (u.role !== 'admin') addNotif(u.id, `🔔 ВАЖНО: ${title}`, 'info'); 
+        render(); 
+    }
+    
+    async function delImportantById(id) { 
+        if (await showConfirm('Удаление', 'Удалить важное уведомление?')) { 
+            important = important.filter(x => x.id !== id); 
+            saveAll(); 
+            render(); 
+        } 
+    }
+
+    // МАССОВЫЕ УВЕДОМЛЕНИЯ
+    async function sendMassNotification(title, message) { 
+        for (let u of users) if (u.role !== 'admin') addNotif(u.id, `📢 МАССОВОЕ: ${title} — ${message}`, 'info'); 
+        render(); 
+    }
+
+    // ЭКСПОРТ ДАННЫХ
+    function exportData() {
+        let data = { users, cards, tasks, meals, events, important, topups, operationHistory, news, taskChats, customSlides, maintenance };
+        let dataStr = JSON.stringify(data, null, 2);
+        let blob = new Blob([dataStr], { type: 'application/json' });
+        let url = URL.createObjectURL(blob);
+        let a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_${new Date().toISOString().slice(0, 19)}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        addNotif(currentUser.id, '💾 Резервная копия скачана', 'info');
+    }
+
+    // РЕДАКТИРОВАНИЕ ПРОФИЛЯ
+    async function editProfile(userId) {
+        let u = users.find(x => x.id === userId);
+        if (u) {
+            let newName = await showPrompt('ФИО', u.fullname);
+            let newBirth = await showPrompt('Дата рождения (ГГГГ-ММ-ДД)', u.birthDate || '');
+            let newCity = await showPrompt('Город', u.city || '');
+            let newSchool = await showPrompt('Школа/ОУ', u.school || '');
+            let newGroup = await showPrompt('Группа/Класс', u.group || '');
+            updateUserProfile(userId, { fullname: newName || u.fullname, birthDate: newBirth || '', city: newCity || '', school: newSchool || '', group: newGroup || '' });
+        }
+    }
+    
+    async function updateUserProfile(id, data) {
+        let u = users.find(x => x.id === id);
+        if (u) { Object.assign(u, data); saveAll(); if (currentUser?.id === id) currentUser = u; render(); }
+    }
+
+    async function createUserByAdmin(login, pass, name, group) {
+        if (users.find(u => u.login === login)) { showToast('Логин уже существует', true); return false; }
+        users.push({ id: nextId(users), login, password: pass, fullname: name || 'Новый пользователь', role: 'user', userStatus: 'active', status: 'approved', group: group || '', birthDate: '', city: '', school: '', gosuslugiLogin: '', gosuslugiPassword: '', gosuslugiEnabled: false, gosuslugiAttempts: 3 });
+        saveAll();
+        addNotif(users[users.length - 1].id, '✅ Администратор создал учётную запись.', 'success');
+        addHistory(users[users.length - 1].id, 'Создание ЛК', 'Администратор создал учётную запись');
+        render();
+        return true;
+    }
+
+    // ЗАГЛУШКА ДЛЯ ПОЛЬЗОВАТЕЛЕЙ
+    function renderMaintenancePage() {
+        const status = maintenance.serverStatus;
+        const msg = maintenance.message;
+        
+        if (status === 'active') return null;
+        
+        let statusClass = '';
+        let icon = '';
+        let title = '';
+        
+        if (status === 'maintenance') {
+            statusClass = 'maintenance';
+            icon = '🔧';
+            title = 'ТЕХНИЧЕСКИЕ РАБОТЫ';
+        } else if (status === 'attack') {
+            statusClass = 'attack';
+            icon = '💀';
+            title = 'DDOS-АТАКА';
+        } else {
+            statusClass = 'closed';
+            icon = '⛔';
+            title = 'САЙТ ЗАКРЫТ';
+        }
+        
+        let countdownHtml = '';
+        if (status === 'maintenance' && maintenance.endTime) {
+            const endDate = new Date(maintenance.endTime);
+            const now = new Date();
+            const diff = Math.max(0, endDate - now);
+            if (diff > 0) {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % 3600000) / 60000);
+                countdownHtml = `<div class="countdown">⏱️ Плановое окончание: ${maintenance.endTime}<br>Осталось: ${hours}ч ${minutes}мин</div>`;
+            }
+        }
+        
+        let messageText = msg;
+        if (status === 'attack' && (!msg || msg === 'Ведутся плановые технические работы.')) messageText = 'Сайт атакован DDoS-атакой. Сайт временно недоступен для входа. Приносим извинения за неудобства.';
+        if (status === 'closed' && (!msg || msg === 'Ведутся плановые технические работы.')) messageText = 'Портал «Депутатская школа» прекратил свою работу. Если вам необходимо выгрузить свою последнюю сессию, обратитесь к администратору.';
+        
+        return `
+            <div class="maintenance-page">
+                <div class="server-status-badge ${statusClass}">${icon} ${title}</div>
+                <div class="message-box">
+                    ${escapeHtml(messageText)}
+                </div>
+                ${countdownHtml}
+                <button class="emergency-login-btn" id="emergencyLoginBtn">🔐 Аварийный вход для администратора</button>
+            </div>
+        `;
+    }
+
+    function showAdminEmergencyLogin() {
+        showGosuslugiConfirm(async () => {
+            const admin = users.find(u => u.role === 'admin');
+            if (admin) {
+                currentUser = admin;
+                activeTab = 'adminPanel';
+                render();
+                showToast('✅ Аварийный вход выполнен');
+            } else {
+                showToast('❌ Администратор не найден', true);
+            }
+        }, true);
+    }
+
+    // ========== РЕНДЕР ==========
+    function render() {
+        const root = document.getElementById('appRoot');
+        
+        // Проверка статуса сервера для обычных пользователей
+        if (maintenance.serverStatus !== 'active' && (!currentUser || currentUser.role !== 'admin')) {
+            root.innerHTML = renderMaintenancePage();
+            const emergencyBtn = document.getElementById('emergencyLoginBtn');
+            if (emergencyBtn) emergencyBtn.onclick = () => showAdminEmergencyLogin();
+            return;
+        }
+        
+        if (!currentUser) {
+            renderAuth();
+            return;
+        }
+        
+        const isAdmin = currentUser.role === 'admin';
+        const unread = getUnread(currentUser.id);
+        
+        const nav = `<div class="nav-tabs">
+            <button class="nav-btn ${activeTab === 'cabinet' ? 'active' : ''}" data-tab="cabinet">📋 Личный кабинет</button>
+            <button class="nav-btn ${activeTab === 'news' ? 'active' : ''}" data-tab="news">📰 Новости</button>
+            ${isAdmin ? `<button class="nav-btn ${activeTab === 'adminUsers' ? 'active' : ''}" data-tab="adminUsers">👥 Пользователи</button>
+            <button class="nav-btn ${activeTab === 'adminCards' ? 'active' : ''}" data-tab="adminCards">🚌 Транспортные карты</button>
+            <button class="nav-btn ${activeTab === 'adminPanel' ? 'active' : ''}" data-tab="adminPanel">⚙️ Администрирование</button>` : ''}
+        </div>`;
+        
+        let contentHtml = '';
+        
+        if (activeTab === 'cabinet') {
+            // ЛИЧНЫЙ КАБИНЕТ
+            if (currentUser.status === 'pending') {
+                contentHtml = `<div class="card"><div style="background:#fff3cd; padding:20px; border-radius:28px; text-align:center;">⚠️ Ваша учётная запись ожидает подтверждения администратором. Доступ к функциям будет открыт после подтверждения.</div></div>`;
+            } else {
+                let card = getUserCard(currentUser.id);
+                let pendingCard = cards.find(c => c.user_id === currentUser.id && c.status === 'pending');
+                let canRequestCard = (!card && !pendingCard);
+                let cardHtml = '';
+                if (card) {
+                    cardHtml = renderCard(card);
+                    if (card && !card.blocked && card.type !== 'social') cardHtml += `<form id="topupForm" style="margin-top:12px;"><div class="form-group"><input type="number" id="topupAmount" placeholder="Сумма пополнения" min="1"></div><button class="btn btn-primary" type="submit">📨 Заявка на пополнение</button></form>`;
+                } else if (pendingCard) cardHtml = `<div class="card">⏳ Заявка на ТК ожидает подтверждения</div>`;
+                else if (canRequestCard) cardHtml = `<form id="cardForm"><div class="form-group"><input type="text" id="cardNum" placeholder="XXX XXX XXX" maxlength="11" required><small>9 цифр (автопробел)</small></div><button class="btn btn-primary" type="submit">📨 Подать заявку на ТК</button></form>`;
+                else cardHtml = `<div class="card">⚠️ Нет активной ТК. Обратитесь к администратору.</div>`;
+                
+                let eventsHtml = getFutureEvents().slice(0, 5).map(e => `<div style="background:#F8FAFE; padding:12px; border-radius:20px; margin-bottom:10px;"><strong>${escapeHtml(e.title)}</strong><br>📅 ${e.date} ${e.time}<br>📍 ${e.location}</div>`).join('') || '<p>Нет мероприятий</p>';
+                
+                let tasksHtml = getFilteredTasks().filter(t => t.assigned_to === currentUser.id).map(t => {
+                    let overdue = isOverdue(t.deadline) && t.status !== 'done';
+                    return `<div style="padding:12px; margin:12px 0; border-left:3px solid ${overdue ? '#dc3545' : '#1E2F4F'}; background:#F8FAFE; border-radius:16px;">
+                        <strong>${escapeHtml(t.title)}</strong>${overdue ? ' <span style="color:#dc3545;">(Просрочена)</span>' : ''}
+                        <p>${escapeHtml(t.description)}</p>
+                        <small>Срок: ${t.deadline || '—'}</small>
+                        <div style="margin-top:8px;">
+                            <select onchange="updTaskStatus(${t.id},this.value)">
+                                <option value="new" ${t.status === 'new' ? 'selected' : ''}>Новая</option>
+                                <option value="progress" ${t.status === 'progress' ? 'selected' : ''}>В работе</option>
+                                <option value="done" ${t.status === 'done' ? 'selected' : ''}>Выполнена</option>
+                            </select>
+                            <button class="btn" style="margin-left:8px;" onclick="showChatModal(${t.id}, '${escapeHtml(t.title).replace(/'/g, "\\'")}')">💬 Чат</button>
+                        </div>
+                    </div>`;
+                }).join('');
+                
+                let activeImportant = important.filter(i => !localStorage.getItem(`dismiss_${i.id}`));
+                let importantHtml = activeImportant.map(i => `<div style="background: linear-gradient(135deg, #ff6b6b, #ee5a24); color:white; padding:12px; border-radius:20px; margin-bottom:12px;"><button class="close" style="float:right; background:none; border:none; color:white; cursor:pointer; font-size:1.2rem;" onclick="dismissImportant(${i.id})">✕</button><strong>🔔 ${escapeHtml(i.title)}</strong><p>${escapeHtml(i.message)}</p></div>`).join('');
+                
+                // Календарь питания
+                let days = getCalendarDays();
+                let cal = `<div class="calendar-grid">${days.map(d => `<div class="cal-day ${selectedDate === d ? 'selected' : ''}" onclick="window.selectDate('${d}')">${formatDate(d)}<div style="font-size:0.6rem;">${['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][new Date(d).getDay()]}</div></div>`).join('')}</div>`;
+                let mealsToday = getMealsByDate(selectedDate);
+                let mealsHtml = mealsToday.length ? mealsToday.map(m => `<div style="background:#F8FAFE; padding:8px; border-radius:16px; margin:6px 0;"><strong>${m.meal_type === 'breakfast' ? '🍳 Завтрак' : m.meal_type === 'lunch' ? '🍲 Обед' : '🍽 Ужин'}</strong><br>${m.dishes.replace(/\n/g, '<br>')}</div>`).join('') : '<p>🍽 Меню не назначено</p>';
+                
+                let historyHtml = `<div class="card"><div class="card-header"><div class="icon">📜</div><h2>История операций</h2></div>${getUserHistory(currentUser.id).map(h => `<div style="font-size:0.7rem; padding:6px 0; border-bottom:1px solid #F4F8FE;"><strong>${escapeHtml(h.action)}</strong> — ${escapeHtml(h.details)}<br><small>${h.date}</small></div>`).join('') || '<p>Нет истории</p>'}</div>`;
+                
+                contentHtml = `${importantHtml}
+                <div class="card"><div class="card-header"><div class="icon">🚌</div><h2>Транспортная карта</h2></div>${cardHtml}</div>
+                <div class="card"><div class="card-header"><div class="icon">🍽️</div><h2>Питание на 14 дней</h2></div>${cal}<div style="margin-top:12px;"><h4>🍽 Меню на ${formatDate(selectedDate)}</h4>${mealsHtml}</div></div>
+                <div class="card"><div class="card-header"><div class="icon">📅</div><h2>Мероприятия</h2></div>${eventsHtml}</div>
+                <div class="card"><div class="card-header"><div class="icon">📋</div><h2>Мои задачи</h2></div><div id="tasksList">${tasksHtml || '<p>Нет задач</p>'}</div></div>
+                ${historyHtml}`;
+            }
+        } else if (activeTab === 'news') {
+            // НОВОСТИ
+            if (!news.length) contentHtml = '<div class="card">Нет новостей</div>';
+            else contentHtml = news.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(n => `<div class="card" data-news-id="${n.id}"><div class="card-header"><div class="icon">📰</div><h2>${escapeHtml(n.title)}</h2></div><div><small>${n.date}</small></div><div>${escapeHtml(n.shortDescription)}</div><button class="btn btn-primary read-more-btn" data-id="${n.id}">Подробнее</button></div>`).join('');
+        } else if (activeTab === 'adminUsers' && isAdmin) {
+            // АДМИН - ПОЛЬЗОВАТЕЛИ
+            let usersTable = users.filter(u => u.role !== 'admin').map(u => {
+                return `<tr>
+                    <td>${escapeHtml(u.fullname)}<br><small>${escapeHtml(u.login)}</small><br><button class="btn" onclick="editProfile(${u.id})">✏️ Редактировать</button>${u.status === 'pending' ? `<br><button class="btn btn-success" onclick="confirmUser(${u.id})">✅ Подтвердить</button>` : ''}${u.userStatus === 'blocked' ? `<br><button class="btn btn-primary" onclick="unlockUser(${u.id})">🔓 Разблокировать</button>` : ''}</td>
+                    <td><select id="userStatus_${u.id}"><option ${u.userStatus === 'active' ? 'selected' : ''}>Активен</option><option ${u.userStatus === 'restricted' ? 'selected' : ''}>Ограничен</option><option ${u.userStatus === 'fired' ? 'selected' : ''}>Уволен</option><option ${u.userStatus === 'blocked' ? 'selected' : ''}>Заблокирован</option></select><br><span class="badge">${u.status === 'approved' ? '✅ Подтверждён' : '⏳ Ожидает'}</span><br><button class="btn btn-primary save-status-btn" data-user="${u.id}">💾 Сохранить статус</button></td>
+                    <td><button class="btn change-pass-btn" data-user="${u.id}">🔑 Сменить пароль</button><br><button class="btn btn-danger" onclick="deleteUser(${u.id})">🗑 Удалить ЛК</button><br><button class="btn btn-warning fire-btn" data-user="${u.id}">🔥 Уволить</button></td>
+                </tr>`;
+            }).join('');
+            contentHtml = `<div class="card"><div class="card-header"><div class="icon">👥</div><h2>Управление пользователями</h2></div><div style="overflow-x:auto"><table class="table-modern"><thead><tr><th>Пользователь</th><th>Статусы</th><th>Действия</th></tr></thead><tbody>${usersTable}</tbody></table></div></div>
+            <div class="card"><div class="card-header"><div class="icon">➕</div><h2>Создать пользователя</h2></div><form id="createUserForm"><div class="form-group"><input type="text" id="newUserLogin" placeholder="Логин" required></div><div class="form-group"><input type="password" id="newUserPass" placeholder="Пароль" required></div><div class="form-group"><input type="text" id="newUserName" placeholder="ФИО"></div><div class="form-group"><input type="text" id="newUserGroup" placeholder="Группа"></div><button class="btn btn-primary" type="submit">➕ Создать пользователя</button></form></div>
+            <div class="card"><div class="card-header"><div class="icon">📢</div><h2>Массовое уведомление</h2></div><form id="massNotifForm"><div class="form-group"><input type="text" id="massTitle" placeholder="Заголовок" required></div><div class="form-group"><textarea id="massMsg" rows="2" placeholder="Текст уведомления" required></textarea></div><button class="btn btn-primary" type="submit">📨 Отправить всем пользователям</button></form></div>
+            <div class="card"><div class="card-header"><div class="icon">💾</div><h2>Резервное копирование</h2></div><button class="btn" onclick="exportData()">📥 Скачать бэкап (JSON)</button></div>`;
+        } else if (activeTab === 'adminCards' && isAdmin) {
+            // АДМИН - ТРАНСПОРТНЫЕ КАРТЫ
+            let pendingCards = getPendingCards();
+            let pendingTopups = getPendingTopUps();
+            let activeCards = [];
+            for (let u of users) { let c = getUserCard(u.id); if (c) activeCards.push({ user: u, card: c }); }
+            let activeCardsTable = activeCards.map(({ user, card }) => `<tr>
+                <td>${escapeHtml(user.fullname)}<br><small>${escapeHtml(user.login)}</small></td>
+                <td>${card.card_number_formatted}</td>
+                <td>${getCardTypeText(card.type)}</td>
+                <td>${card.type === 'general' ? card.balance + ' руб' : card.type === 'social' ? 'Безлимит' : card.balance + ' руб'}</td>
+                <td>${card.type === 'schoolboy' || card.type === 'student' ? `${card.льготные_осталось} из ${card.type === 'schoolboy' ? 45 : 50}<br>Обычных: ${card.обычные_доступно || 0}` : card.type === 'social' ? '∞' : 'Обычных: ' + Math.max(0, card.обычные_доступно || 0)}</td>
+                <td>${card.blocked ? '🔒 Заблокирована' : '✅ Активна'}</td>
+                <td><div style="display:flex; flex-wrap:wrap; gap:4px;">${card.type !== 'social' ? `<input type="number" id="topupAmount_${card.id}" placeholder="Сумма" style="width:80px;"><button class="btn" onclick="instantTopUp(${card.id}, parseInt(document.getElementById('topupAmount_${card.id}').value))">💰 Пополнить</button>` : ''}${!card.blocked ? `<button class="btn" onclick="debitRide(${card.id})">🎫 Списать</button>` : ''}${!card.blocked ? `<button class="btn btn-danger" onclick="blockCardWithReason(${card.id})">🔒 Блок</button>` : `<button class="btn btn-success" onclick="unblockCard(${card.id})">✅ Разбл</button>`}<button class="btn btn-danger" onclick="delCardById(${card.id}, ${user.id})">🗑 Уд</button></div></td>
+            </tr>`).join('');
+            contentHtml = `<div class="card"><div class="card-header"><div class="icon">💰</div><h2>Заявки на пополнение (${pendingTopups.length})</h2></div>${pendingTopups.map(r => { let u = users.find(x => x.id === r.user_id); return `<div style="border-bottom:1px solid #eee; padding:8px;">${u?.fullname} — ${r.amount} руб <button class="btn btn-success" onclick="approveTopUp(${r.id})">✅ Подтвердить</button><button class="btn btn-danger" onclick="rejectTopUp(${r.id})">❌ Отклонить</button></div>`; }).join('') || 'Нет заявок'}</div>
+            <div class="card"><div class="card-header"><div class="icon">🚌</div><h2>Заявки на ТК (${pendingCards.length})</h2></div><table class="table-modern"><thead><tr><th>Пользователь</th><th>Номер</th><th>Тип</th><th></th></tr></thead><tbody>${pendingCards.map(c => { let u = users.find(x => x.id === c.user_id); return `<tr><td>${u?.fullname}</td><td>${c.card_number_formatted}</td><td><select id="type_${c.id}"><option value="schoolboy">Школьник</option><option value="student">Студент</option><option value="general">Общепользовательская</option><option value="social">Льготная</option></select></td><td><button class="btn btn-success" onclick="approveCard(${c.id}, document.getElementById('type_${c.id}').value)">✅ Подтвердить</button><button class="btn btn-danger" onclick="rejectCard(${c.id})">❌ Отклонить</button></td></tr>`; }).join('')}</tbody></table></div>
+            <div class="card"><div class="card-header"><div class="icon">🚌</div><h2>Активные транспортные карты</h2></div><div style="overflow-x:auto"><table class="table-modern"><thead><tr><th>Пользователь</th><th>Номер</th><th>Тип</th><th>Баланс</th><th>Поездки</th><th>Статус</th><th>Действия</th></tr></thead><tbody>${activeCardsTable || '<tr><td colspan="7">Нет активных карт</td></tr>'}</tbody></table></div></div>`;
+        } else if (activeTab === 'adminPanel' && isAdmin) {
+            // АДМИН - ПАНЕЛЬ УПРАВЛЕНИЯ
+            let filteredTasks = getFilteredTasks();
+            let tasksHtml = filteredTasks.map(t => {
+                let assignedUser = users.find(u => u.id === t.assigned_to);
+                let overdue = isOverdue(t.deadline) && t.status !== 'done';
+                return `<div style="background:#F8FAFE; padding:12px; border-radius:20px; margin-bottom:10px;">
+                    <strong>${escapeHtml(t.title)}</strong>${overdue ? ' <span style="color:#dc3545;">(Просрочена)</span>' : ''}<br>
+                    👤 ${assignedUser?.fullname}<br>📅 Срок: ${t.deadline || '—'}<br>
+                    <button class="btn btn-danger" onclick="delTaskById(${t.id})">🗑 Удалить задачу</button>
+                    <button class="btn" onclick="showChatModal(${t.id}, '${escapeHtml(t.title).replace(/'/g, "\\'")}')">💬 Чат</button>
+                </div>`;
+            }).join('');
+            
+            let slidesList = customSlides.sort((a, b) => a.order - b.order).map(s => {
+                const grad = gradientPresets.find(g => g.name === s.gradientId) || gradientPresets[0];
+                return `<div class="card" style="margin-bottom:12px;"><strong>${escapeHtml(s.title)}</strong> ${s.active ? '✅ Активен' : '❌ Неактивен'}<br><small>Градиент: ${s.gradientId}, цвет текста: ${s.textColor}</small><br><button class="btn edit-slide-btn" data-id="${s.id}">✏️ Редактировать</button><button class="btn btn-danger delete-slide-btn" data-id="${s.id}">🗑 Удалить</button></div>`;
+            }).join('');
+            
+            // Предпросмотр статуса сервера
+            let previewHtml = '';
+            if (maintenance.serverStatus !== 'active') {
+                let previewMsg = maintenance.message;
+                if (maintenance.serverStatus === 'attack' && (!previewMsg || previewMsg === 'Ведутся плановые технические работы.')) previewMsg = 'Сайт атакован DDoS-атакой. Сайт временно недоступен для входа.';
+                if (maintenance.serverStatus === 'closed' && (!previewMsg || previewMsg === 'Ведутся плановые технические работы.')) previewMsg = 'Портал «Депутатская школа» прекратил свою работу.';
+                previewHtml = `<div class="server-preview"><strong>🔍 Предпросмотр заглушки:</strong><div class="maintenance-page" style="padding:20px; margin-top:10px;"><div class="server-status-badge ${maintenance.serverStatus === 'maintenance' ? 'maintenance' : maintenance.serverStatus === 'attack' ? 'attack' : 'closed'}">${maintenance.serverStatus === 'maintenance' ? '🔧 ТЕХРАБОТЫ' : maintenance.serverStatus === 'attack' ? '💀 DDOS-АТАКА' : '⛔ ЗАКРЫТ'}</div><div class="message-box">${escapeHtml(previewMsg)}</div></div></div>`;
+            }
+            
+            contentHtml = `<div class="card"><div class="card-header"><div class="icon">🔔</div><h2>Важные уведомления</h2></div><form id="impForm"><input id="impTitle" placeholder="Заголовок уведомления" required><textarea id="impMsg" rows="2" placeholder="Текст уведомления" required></textarea><button class="btn btn-primary" type="submit">➕ Добавить уведомление</button></form><div id="impList">${important.map(i => `<div style="background:#F8FAFE; padding:12px; border-radius:20px; margin-top:8px;"><strong>🔔 ${escapeHtml(i.title)}</strong><br>${escapeHtml(i.message)}<br><button class="btn btn-danger" onclick="delImportantById(${i.id})">🗑 Удалить</button></div>`).join('') || 'Нет уведомлений'}</div></div>
+            <div class="card"><div class="card-header"><div class="icon">🍽️</div><h2>Управление питанием</h2></div><form id="addMealForm"><input type="date" id="mealDate" required><select id="mealType"><option value="breakfast">Завтрак</option><option value="lunch">Обед</option><option value="dinner">Ужин</option></select><textarea id="mealDishes" rows="2" placeholder="Блюда (каждое с новой строки)"></textarea><button class="btn btn-primary" type="submit">➕ Добавить меню</button></form><div id="mealsList">${meals.map(m => `<div style="background:#F8FAFE; padding:12px; border-radius:20px; margin-top:8px;"><strong>📅 ${m.date} — ${m.meal_type === 'breakfast' ? 'Завтрак' : m.meal_type === 'lunch' ? 'Обед' : 'Ужин'}</strong><br>${m.dishes.replace(/\n/g, '<br>')}<br><button class="btn btn-danger" onclick="delMealById(${m.id})">🗑 Удалить</button></div>`).join('') || 'Нет меню'}</div></div>
+            <div class="card"><div class="card-header"><div class="icon">📅</div><h2>Мероприятия</h2></div><form id="addEventForm"><input id="evTitle" placeholder="Название мероприятия" required><textarea id="evDesc" rows="2" placeholder="Описание"></textarea><input id="evDate" type="date" required><input id="evTime" type="time" required><input id="evLoc" placeholder="Место проведения" required><button class="btn btn-primary" type="submit">➕ Добавить мероприятие</button></form><div id="eventsList">${events.map(e => `<div style="background:#F8FAFE; padding:12px; border-radius:20px; margin-top:8px;"><strong>📅 ${e.date} ${e.time} — ${escapeHtml(e.title)}</strong><br>📍 ${e.location}<br>${escapeHtml(e.description)}<br><button class="btn btn-danger" onclick="delEventById(${e.id})">🗑 Удалить</button></div>`).join('') || 'Нет мероприятий'}</div></div>
+            <div class="card"><div class="card-header"><div class="icon">📋</div><h2>Управление задачами</h2></div><div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;"><select id="filterStatus" onchange="applyFilters()"><option value="all">Все статусы</option><option value="new">Новые</option><option value="progress">В работе</option><option value="done">Выполнены</option></select><select id="filterUser" onchange="applyFilters()"><option value="all">Все пользователи</option>${users.filter(u => u.status === 'approved').map(u => `<option value="${u.id}">${escapeHtml(u.fullname)}</option>`).join('')}</select></div><button id="showTaskBtn" class="btn">➕ Добавить задачу</button><div id="taskFormDiv" style="display:none; margin-top:12px;"><input id="taskTitle" placeholder="Название задачи"><textarea id="taskDesc" rows="2" placeholder="Описание задачи"></textarea><select id="taskAssigned">${users.filter(u => u.status === 'approved' && u.role !== 'admin').map(u => `<option value="${u.id}">${escapeHtml(u.fullname)}</option>`).join('')}</select><input id="taskDeadline" type="date"><button id="createTaskBtn" class="btn btn-primary">✅ Создать задачу</button><button id="cancelTaskBtn" class="btn">Отмена</button></div><div id="allTasksList">${tasksHtml || '<p>Нет задач</p>'}</div></div>
+            <div class="card"><div class="card-header"><div class="icon">🖼️</div><h2>Управление слайдером</h2></div><button class="btn btn-primary" id="addSlideBtn">➕ Добавить слайд</button><div id="slidesList">${slidesList}</div></div>
+            <div class="card"><div class="card-header"><div class="icon">📰</div><h2>Управление новостями</h2></div><div class="card"><div class="card-header"><div class="icon">➕</div><h2>Создать новость</h2></div><form id="createNewsForm"><div class="form-group"><input type="text" id="newsTitle" placeholder="Заголовок" required></div><div class="form-group"><textarea id="newsShortDesc" rows="2" placeholder="Краткое описание" required></textarea></div><div class="form-group"><textarea id="newsFullText" rows="4" placeholder="Полный текст новости" required></textarea></div><div class="form-group"><select id="newsLinkedSlide"><option value="">Не привязывать к слайдеру</option>${customSlides.filter(s => s.active).map(s => `<option value="${s.id}">Слайд: ${s.title}</option>`).join('')}</select></div><button class="btn btn-primary" type="submit">➕ Создать новость</button></form></div><div class="card"><div class="card-header"><div class="icon">📰</div><h2>Все новости</h2></div><div id="adminNewsList">${news.map(n => `<div class="card" style="margin-bottom:12px;"><strong>${escapeHtml(n.title)}</strong> <small>${n.date}</small><div>${escapeHtml(n.shortDescription)}</div><button class="btn btn-danger delete-news-btn" data-id="${n.id}" style="margin-top:8px;">🗑 Удалить новость</button></div>`).join('') || 'Нет новостей'}</div></div></div>
+            <div class="card"><div class="card-header"><div class="icon">🖥️</div><h2>Статус сервера</h2></div><div class="form-group"><label>Текущий статус:</label><select id="serverStatusSelect"><option value="active" ${maintenance.serverStatus === 'active' ? 'selected' : ''}>🟢 Активен (сайт работает)</option><option value="maintenance" ${maintenance.serverStatus === 'maintenance' ? 'selected' : ''}>🔧 Технические работы</option><option value="attack" ${maintenance.serverStatus === 'attack' ? 'selected' : ''}>💀 DDoS-атака</option><option value="closed" ${maintenance.serverStatus === 'closed' ? 'selected' : ''}>⛔ Сайт закрыт</option></select></div><div class="form-group" id="serverMessageGroup"><label>Сообщение для пользователей:</label><textarea id="serverMessage" rows="3" placeholder="Введите сообщение...">${escapeHtml(maintenance.message)}</textarea></div><div class="form-group" id="serverEndTimeGroup" style="${maintenance.serverStatus !== 'maintenance' ? 'display:none;' : ''}"><label>Время окончания (ГГГГ-ММ-ДД ЧЧ:ММ):</label><input type="text" id="serverEndTime" placeholder="2025-12-31 18:00" value="${maintenance.endTime || ''}"></div><button class="btn btn-primary" id="applyServerStatusBtn">✅ Применить статус (с подтверждением Госуслуг)</button>${previewHtml}</div>`;
+        }
+        
+        const sliderHtml = `<div class="slider-section"><div class="slider-container" id="sliderContainer"><div class="slider-track" id="sliderTrack">${customSlides.filter(s => s.active).sort((a, b) => a.order - b.order).map(slide => {
+            let grad = gradientPresets.find(g => g.name === slide.gradientId) || gradientPresets[0];
+            let textColor = slide.textColor || '#ffffff';
+            return `<div class="slider-slide" data-slide-id="${slide.id}" data-news-id="${slide.linkedNewsId || ''}"><div class="banner-slide" style="background: ${grad.background}; color: ${textColor}"><div style="font-size:1.2rem; font-weight:700;">${escapeHtml(slide.title)}</div><div style="white-space: pre-wrap;">${escapeHtml(slide.text)}</div></div></div>`;
+        }).join('')}</div></div><div class="slider-dots" id="sliderDots"></div></div>`;
+        
+        root.innerHTML = `<div class="app-wrapper"><div class="header"><div class="logo"><h1>🏛 Депутатская школа</h1><div class="victory-badge"><span>🎗️</span><span>⭐</span><span>С ДНЁМ ПОБЕДЫ!</span></div></div><div class="user-area"><div class="notif-icon" id="notifIcon" style="position:relative; cursor:pointer;">🔔${unread ? `<span style="position:absolute; top:-8px; right:-8px; background:#dc3545; color:white; border-radius:50%; width:16px; height:16px; font-size:0.6rem; display:flex; align-items:center; justify-content:center;">${unread}</span>` : ''}</div><span>👤 ${escapeHtml(currentUser.fullname)}</span><button class="btn" id="profileBtn">✏️ Профиль</button><button class="btn" id="saveSessionBtn">💾 Сохранить сессию</button><button class="btn btn-danger" id="logoutBtn">🚪 Выйти</button><div id="notifDrop" class="notif-dropdown" style="position:absolute; top:50px; right:20px; background:white; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); width:280px; display:none; z-index:1000; max-height:400px; overflow-y:auto;"></div></div></div>${sliderHtml}${nav}<div class="content-area" id="dynamicContent">${contentHtml}</div></div>`;
+        
+        // Инициализация слайдера
+        function initSlider() {
+            const track = document.getElementById('sliderTrack');
+            const dotsContainer = document.getElementById('sliderDots');
+            if (!track || !dotsContainer) return;
+            const total = customSlides.filter(s => s.active).length;
+            if (total === 0) return;
+            let current = 0;
+            if (sliderAutoInterval) clearInterval(sliderAutoInterval);
+            dotsContainer.innerHTML = '';
+            for (let i = 0; i < total; i++) {
+                const dot = document.createElement('div');
+                dot.classList.add('dot');
+                if (i === 0) dot.classList.add('active');
+                dot.addEventListener('click', () => {
+                    current = i;
+                    track.style.transform = `translateX(-${current * 100}%)`;
+                    document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === current));
+                });
+                dotsContainer.appendChild(dot);
+            }
+            sliderAutoInterval = setInterval(() => {
+                current = (current + 1) % total;
+                track.style.transform = `translateX(-${current * 100}%)`;
+                document.querySelectorAll('.dot').forEach((d, idx) => d.classList.toggle('active', idx === current));
+            }, 5000);
+            document.querySelectorAll('.slider-slide').forEach(slide => {
+                slide.addEventListener('click', async () => {
+                    const newsId = slide.getAttribute('data-news-id');
+                    if (newsId && newsId !== 'null' && newsId !== '') {
+                        const foundNews = news.find(n => n.id == newsId);
+                        if (foundNews) showNewsModal(foundNews.id);
+                    }
+                });
+            });
+        }
+        initSlider();
+        
+        // Обработчики событий
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.addEventListener('click', () => { activeTab = btn.dataset.tab; render(); }));
+        document.getElementById('logoutBtn')?.addEventListener('click', () => logout());
+        document.getElementById('saveSessionBtn')?.addEventListener('click', saveSessionToFile);
+        document.getElementById('profileBtn')?.addEventListener('click', async () => {
+            let newName = await showPrompt('ФИО', currentUser.fullname);
+            let newBirth = await showPrompt('Дата рождения (ГГГГ-ММ-ДД)', currentUser.birthDate || '');
+            let newCity = await showPrompt('Город', currentUser.city || '');
+            let newSchool = await showPrompt('Школа/ОУ', currentUser.school || '');
+            let newGroup = await showPrompt('Группа/Класс', currentUser.group || '');
+            updateUserProfile(currentUser.id, { fullname: newName || currentUser.fullname, birthDate: newBirth || '', city: newCity || '', school: newSchool || '', group: newGroup || '' });
+        });
+        
+        let notifIcon = document.getElementById('notifIcon');
+        let notifDrop = document.getElementById('notifDrop');
+        if (notifIcon) notifIcon.onclick = (e) => {
+            e.stopPropagation();
+            if (notifDrop.style.display === 'none' || notifDrop.style.display === '') {
+                notifDrop.innerHTML = notifs.filter(n => n.user_id === currentUser.id).slice(0, 20).map(n => `<div style="padding:10px; border-bottom:1px solid #eee; font-size:0.75rem;">📢 ${escapeHtml(n.message)}<br><small style="color:#888;">${n.time}</small></div>`).join('');
+                notifDrop.style.display = 'block';
+                markRead(currentUser.id);
+                const unreadSpan = document.querySelector('#notifIcon span');
+                if (unreadSpan) unreadSpan.remove();
+            } else {
+                notifDrop.style.display = 'none';
+            }
+        };
+        document.addEventListener('click', () => { if (notifDrop) notifDrop.style.display = 'none'; });
+        
+        document.getElementById('impForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await addImportant(document.getElementById('impTitle').value, document.getElementById('impMsg').value); render(); });
+        document.getElementById('addMealForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await addMeal(document.getElementById('mealDate').value, document.getElementById('mealType').value, document.getElementById('mealDishes').value); render(); });
+        document.getElementById('addEventForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await addEvent(document.getElementById('evTitle').value, document.getElementById('evDesc').value, document.getElementById('evDate').value, document.getElementById('evTime').value, document.getElementById('evLoc').value); render(); });
+        document.getElementById('createUserForm')?.addEventListener('submit', async (e) => { e.preventDefault(); let ok = await createUserByAdmin(document.getElementById('newUserLogin').value, document.getElementById('newUserPass').value, document.getElementById('newUserName').value, document.getElementById('newUserGroup').value); if (ok) { render(); showToast('Пользователь создан!'); } });
+        document.getElementById('massNotifForm')?.addEventListener('submit', async (e) => { e.preventDefault(); await sendMassNotification(document.getElementById('massTitle').value, document.getElementById('massMsg').value); render(); });
+        document.getElementById('createNewsForm')?.addEventListener('submit', async (e) => { e.preventDefault(); const title = document.getElementById('newsTitle').value; const shortDesc = document.getElementById('newsShortDesc').value; const fullText = document.getElementById('newsFullText').value; const linkedSlide = document.getElementById('newsLinkedSlide').value; if (!title || !shortDesc || !fullText) { showToast('Заполните все поля', true); return; } await addNews(title, shortDesc, fullText, linkedSlide ? parseInt(linkedSlide) : null); render(); });
+        document.getElementById('createTaskBtn')?.addEventListener('click', async () => { await addTask(document.getElementById('taskTitle').value, document.getElementById('taskDesc').value, document.getElementById('taskAssigned').value, document.getElementById('taskDeadline').value); render(); });
+        document.getElementById('addSlideBtn')?.addEventListener('click', async () => { await addSlide(); render(); });
+        document.getElementById('applyServerStatusBtn')?.addEventListener('click', async () => { 
+            const newStatus = document.getElementById('serverStatusSelect').value;
+            const newMessage = document.getElementById('serverMessage').value;
+            const newEndTime = document.getElementById('serverEndTime')?.value || null;
+            await setServerStatus(newStatus, newMessage, newEndTime);
+        });
+        
+        const serverStatusSelect = document.getElementById('serverStatusSelect');
+        const serverEndTimeGroup = document.getElementById('serverEndTimeGroup');
+        if (serverStatusSelect) {
+            serverStatusSelect.addEventListener('change', () => {
+                if (serverEndTimeGroup) serverEndTimeGroup.style.display = serverStatusSelect.value === 'maintenance' ? 'block' : 'none';
+            });
+        }
+        
+        document.querySelectorAll('.edit-slide-btn').forEach(btn => btn.addEventListener('click', async () => { const id = parseInt(btn.getAttribute('data-id')); await editSlide(id); render(); }));
+        document.querySelectorAll('.delete-slide-btn').forEach(btn => btn.addEventListener('click', async () => { const id = parseInt(btn.getAttribute('data-id')); await deleteSlide(id); render(); }));
+        document.querySelectorAll('.delete-news-btn').forEach(btn => btn.addEventListener('click', async () => { const id = parseInt(btn.getAttribute('data-id')); await deleteNews(id); render(); }));
+        document.querySelectorAll('.read-more-btn').forEach(btn => btn.addEventListener('click', () => { const id = parseInt(btn.getAttribute('data-id')); if (id) showNewsModal(id); }));
+        
+        document.querySelectorAll('.save-status-btn').forEach(btn => btn.addEventListener('click', () => { 
+            const userId = parseInt(btn.getAttribute('data-user')); 
+            const select = document.getElementById(`userStatus_${userId}`); 
+            const newStatus = select.value; 
+            showGosuslugiConfirm(async () => { await setUserStatus(userId, newStatus); showToast('Статус пользователя изменён'); render(); });
+        }));
+        
+        document.querySelectorAll('.fire-btn').forEach(btn => btn.addEventListener('click', () => { 
+            const userId = parseInt(btn.getAttribute('data-user')); 
+            showGosuslugiConfirm(async () => { await setUserStatus(userId, 'fired'); showToast('Пользователь уволен'); render(); });
+        }));
+        
+        document.querySelectorAll('.change-pass-btn').forEach(btn => btn.addEventListener('click', async () => { 
+            const userId = parseInt(btn.getAttribute('data-user')); 
+            const newPass = await showPrompt('Новый пароль', 'Введите новый пароль'); 
+            if (newPass) { showGosuslugiConfirm(async () => { await changePass(userId, newPass); showToast('Пароль изменён'); }, true); } 
+        }));
+        
+        let cardInput = document.getElementById('cardNum');
+        if (cardInput) cardInput.addEventListener('input', function () { formatCardNum(this); });
+        document.getElementById('cardForm')?.addEventListener('submit', async (e) => { e.preventDefault(); let res = await requestCard(currentUser.id, document.getElementById('cardNum').value); if (res) render(); });
+        document.getElementById('topupForm')?.addEventListener('submit', async (e) => { e.preventDefault(); let amt = parseInt(document.getElementById('topupAmount').value); if (amt > 0) await addTopUpReq(currentUser.id, amt); render(); });
+        
+        let showTaskFlag = false;
+        document.getElementById('showTaskBtn')?.addEventListener('click', () => { let div = document.getElementById('taskFormDiv'); showTaskFlag = !showTaskFlag; div.style.display = showTaskFlag ? 'block' : 'none'; });
+        document.getElementById('cancelTaskBtn')?.addEventListener('click', () => { document.getElementById('taskFormDiv').style.display = 'none'; showTaskFlag = false; });
+    }
+    
+    function renderAuth() {
+        const root = document.getElementById('appRoot');
+        root.innerHTML = `<div class="login-container"><div class="login-card"><div class="logo-area"><h1>🏛 Депутатская школа</h1><p>Официальный портал</p></div><form id="loginForm"><div class="form-group"><label>Логин</label><input type="text" id="logLogin" placeholder="Введите логин" required autocomplete="username"></div><div class="form-group"><label>Пароль</label><input type="password" id="logPass" placeholder="Введите пароль" required autocomplete="current-password"></div><div id="loginError" class="error-message" style="display:none;"></div><button type="submit" class="login-btn">🔐 Войти в систему</button></form><div class="register-link">Нет аккаунта? <a id="goReg" style="cursor:pointer;">Зарегистрироваться</a></div><div class="victory-block"><div class="victory-text">С ДНЁМ ПОБЕДЫ!</div><div class="victory-date">9 мая — помним, гордимся</div></div><div style="margin-top: 20px; text-align: center;"><label><input type="file" id="sessionFileInput" accept=".json" style="display:none;"></label><button class="btn" id="loadSessionBtn" style="width:100%;">📁 Загрузить сессию из файла</button></div></div></div>`;
+        
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            let loginVal = document.getElementById('logLogin').value.trim();
+            let passVal = document.getElementById('logPass').value.trim();
+            let res = await loginUser(loginVal, passVal);
+            if (res) {
+                document.body.classList.add('fade-out-page');
+                setTimeout(() => { render(); document.body.classList.remove('fade-out-page'); }, 400);
+            } else {
+                document.getElementById('loginError').style.display = 'block';
+                document.getElementById('loginError').innerText = 'Неверный логин или пароль';
+            }
+        });
+        
+        document.getElementById('goReg').addEventListener('click', async () => {
+            let login = await showPrompt('Регистрация', 'Придумайте логин');
+            if (!login) return;
+            let pass = await showPrompt('Регистрация', 'Придумайте пароль');
+            if (!pass) return;
+            let name = await showPrompt('Регистрация', 'Ваше ФИО');
+            let group = await showPrompt('Регистрация', 'Ваша группа/класс');
+            let ok = await register(login, pass, name, group);
+            if (ok) {
+                showToast('Регистрация успешна! После подтверждения администратором вы сможете войти.');
+                renderAuth();
+            } else {
+                showToast('Логин уже существует', true);
+            }
+        });
+        
+        document.getElementById('loadSessionBtn').addEventListener('click', () => {
+            const input = document.getElementById('sessionFileInput');
+            input.onchange = (e) => { if(e.target.files[0]) loadSessionFromFile(e.target.files[0]); };
+            input.click();
+        });
+    }
+    
+    function renderCard(card) {
+        if (!card) return null;
+        if (card.unlimited) return `<div class="tk-card"><strong>⭐ ЛЬГОТНАЯ КАРТА (БЕЗЛИМИТ)</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${card.total_rides || 0}<br>⭐ Безлимит</div>`;
+        if (card.blocked) return `<div class="tk-card" style="background: linear-gradient(135deg, #991b1b, #7f1d1d);"><strong>🔒 КАРТА ЗАБЛОКИРОВАНА</strong><br>${card.card_number_formatted}<br>⚠️ Причина: ${card.block_reason || 'Не указана'}<br>❌ Обратитесь к администратору</div>`;
+        if (card.type === 'general') return `<div class="tk-card"><strong>✅ АКТИВНА</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${card.обычные_совершено || 0}<br>🚌 Доступно: ${Math.max(0, card.обычные_доступно || 0)}<br>💰 Баланс: ${card.balance} руб</div>`;
+        if (card.type === 'schoolboy' || card.type === 'student') {
+            let max = card.type === 'schoolboy' ? 45 : 50;
+            let price = card.type === 'schoolboy' ? '8.40 руб' : '21 руб';
+            return `<div class="tk-card"><strong>✅ АКТИВНА</strong><br>${card.card_number_formatted}<br>Тип: ${getCardTypeText(card.type)}<br>✅ Поездок: ${(card.льготные_совершено || 0) + (card.обычные_совершено || 0)} (льготных: ${card.льготные_совершено || 0})<br>🎟 Льготных осталось: ${card.льготные_осталось || 0} из ${max} (${price})<br>🚌 Обычных доступно: ${card.обычные_доступно || 0}<br>💰 Баланс: ${card.balance} руб</div>`;
+        }
+        return '';
+    }
+    
+    function showNewsModal(newsId) {
+        const n = news.find(x => x.id === newsId);
+        if (!n) return;
+        const overlay = document.createElement('div');
+        overlay.className = 'modal-overlay';
+        overlay.innerHTML = `<div class="modal-container"><div class="modal-title">${escapeHtml(n.title)}</div><div><small>${n.date}</small></div><div style="margin: 16px 0; white-space: pre-wrap;">${escapeHtml(n.fullText)}</div><div class="modal-buttons"><button class="btn" id="closeNewsBtn">Закрыть</button></div></div>`;
+        document.body.appendChild(overlay);
+        setTimeout(() => overlay.classList.add('active'), 10);
+        overlay.querySelector('#closeNewsBtn').onclick = () => { overlay.classList.remove('active'); setTimeout(() => overlay.remove(), 300); };
+    }
+    
+    function applyFilters() { 
+        taskFilterStatus = document.getElementById('filterStatus').value; 
+        taskFilterUser = document.getElementById('filterUser').value; 
+        render(); 
+    }
+    
+    window.selectDate = (d) => { selectedDate = d; render(); };
+    
+    // Комбинация клавиш для аварийного входа
+    document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.altKey && e.key === 'a') {
+            e.preventDefault();
+            if (maintenance.serverStatus !== 'active' && (!currentUser || currentUser.role !== 'admin')) {
+                showAdminEmergencyLogin();
+            }
+        }
+    });
+    
+    render();
+</script>
+</body>
+</html>
